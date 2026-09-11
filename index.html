@@ -1,0 +1,1849 @@
+﻿<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Eco TTE">
+<meta name="theme-color" content="#FAF9F7">
+<script data-iphone="sentinella">
+(function(){
+var h=document.documentElement, msg="";
+function ha(c){ return (" "+h.className+" ").indexOf(" "+c+" ")>=0; }
+// L'errore puo' arrivare prima che l'avviso esista — uno script in <head> che
+// non si lascia leggere —: il messaggio si tiene da parte e si scrive quando
+// la pagina c'e'.
+function scrivi(){
+  var e=document.getElementById("nmerr");
+  if(e&&msg) e.textContent="Errore del motore: "+msg;
+}
+function ko(m){
+  if(m&&!msg) msg=m;
+  if(!ha("motore-ko")) h.className+=" motore-ko";
+  scrivi();
+}
+h.className+=" js";
+window.onerror=function(m,src,riga,col){
+  m=String(m);
+  if(/^Script error\.?$/.test(m)) m="il browser non ne mostra il dettaglio (\u00abScript error.\u00bb)";
+  ko(m+(riga?" (riga "+riga+(col?", colonna "+col:"")+")":""));
+};
+document.addEventListener("DOMContentLoaded",function(){
+  if(!ha("motore-ok")) ko(msg||"il motore non ha completato l'avvio"); else scrivi();
+});
+})();
+</script>
+<title>Ecocardiogramma transtoracico — scheda di refertazione</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:#FAF9F7; --surface:#FFFFFF; --surface-alt:#F3F2EF;
+    --border:rgba(11,11,11,0.10); --border-strong:rgba(11,11,11,0.18);
+    --text-primary:#0B0B0B; --text-secondary:#52514E; --text-muted:#898781;
+    --accent-blue:#2A78D6;   --accent-blue-bg:#E6F1FB;   --accent-blue-border:#B5D4F4;
+    --accent-amber:#BA7517;  --accent-amber-bg:#FAEEDA;  --accent-amber-border:#FAC775;
+    --accent-red:#A32D2D;    --accent-red-bg:#FCEBEB;    --accent-red-border:#F7C1C1;
+    --accent-green:#3B6D11;  --accent-green-bg:#EAF3DE;  --accent-green-border:#C0DD97;
+    --accent-teal:#0E7C86;   --accent-teal-bg:#E2F4F5;   --accent-teal-border:#A7DBDE;
+    --accent-purple:#534AB7; --accent-purple-bg:#EEEDFE; --accent-purple-border:#CECBF6;
+    --pill-gray-bg:#F1EFE8;  --pill-gray-fg:#444441;
+    --radius-sm:6px; --radius-md:10px; --radius-lg:14px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  }
+  body { font-family:var(--font); background:var(--bg); color:var(--text-primary); font-size:14px; line-height:1.6; -webkit-font-smoothing:antialiased; padding-bottom:80px; }
+  .page { max-width:980px; margin:0 auto; padding:1.2rem 1rem 3rem; }
+
+  /* ── testata ────────────────────────────────────────────── */
+  .kicker { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); margin-bottom:6px; }
+  .headline { font-size:23px; font-weight:600; line-height:1.22; margin-bottom:10px; }
+  .section-label { font-size:11px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--text-muted); margin:2rem 0 8px; }
+  .subsection-label { font-size:15px; font-weight:600; margin:1.6rem 0 .3rem; padding-bottom:5px; border-bottom:2px solid var(--border-strong); }
+  .hint { font-size:11.5px; color:var(--text-muted); line-height:1.5; margin:2px 0 8px; }
+  strong { font-weight:600; }
+
+  /* ── barra sticky paziente ──────────────────────────────── */
+  .stickyhead { position:-webkit-sticky;position:sticky; top:0; z-index:40; background:rgba(250,249,247,.96); border-bottom:.5px solid var(--border-strong); }
+  .topbar { border-bottom:.5px solid var(--border); }
+  .topbar-in { max-width:980px; margin:0 auto; padding:8px 1rem; display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; }
+  .sexsw { display:inline-flex; border:1px solid var(--border-strong); border-radius:99px; overflow:hidden; background:var(--surface); }
+  .sexsw button { font-family:var(--font); font-size:12px; font-weight:600; padding:5px 14px; border:none; background:transparent; color:var(--text-secondary); cursor:pointer; }
+  .sexsw button.on { background:var(--accent-blue); color:#fff; }
+  .mini { display:inline-flex; align-items:center; gap:5px; background:var(--surface); border:.5px solid var(--border-strong); border-radius:99px; padding:3px 8px 3px 10px; font-size:12px; color:var(--text-secondary); }
+  .mini input { width:52px; font-family:var(--font); font-size:12.5px; font-weight:600; border:none; background:transparent; color:var(--text-primary); text-align:right; padding:2px 0; }
+  .mini input:focus { outline:none; }
+  .big { font-size:26px; font-weight:600; line-height:1.15; }
+  .big .un { font-size:13px; font-weight:500; color:var(--text-secondary); }
+  .quad { display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:.6rem 0; }
+  .qc { border:.5px solid var(--border-strong); border-radius:var(--radius-md); padding:9px 11px; font-size:12px; background:var(--surface); }
+  .qc.on { border-width:2px; font-weight:600; }
+  .qc .qt { font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); }
+  .scai { display:flex; gap:5px; margin:.5rem 0; flex-wrap:wrap; }
+  .scai span { flex:1 1 52px; text-align:center; font-size:12px; font-weight:600; padding:7px 4px; border-radius:var(--radius-sm); border:.5px solid var(--border-strong); background:var(--surface); color:var(--text-muted); }
+  .bsa-chip { background:var(--accent-teal-bg); border:.5px solid var(--accent-teal-border); color:var(--accent-teal); border-radius:99px; padding:4px 11px; font-size:12px; font-weight:600; }
+
+  /* ── navigazione a sezioni ──────────────────────────────── */
+  .nav { display:flex; gap:6px; overflow-x:auto; padding:8px 1rem; max-width:980px; margin:0 auto; scrollbar-width:none; }
+  .nav::-webkit-scrollbar { display:none; }
+  .nav button { flex:0 0 auto; font-family:var(--font); font-size:12.5px; font-weight:600; padding:7px 13px; border-radius:99px; border:.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; white-space:nowrap; }
+  .nav button.on { background:var(--text-primary); color:#fff; border-color:var(--text-primary); }
+  .navwrap { }
+  .tab { display:none; }
+  .tab.on { display:block; }
+
+  /* ── righe parametro ────────────────────────────────────── */
+  .grp { background:var(--surface); border:.5px solid var(--border-strong); border-radius:var(--radius-lg); padding:.5rem .8rem .7rem; margin:.7rem 0 1.1rem; }
+  .grp-h { font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); padding:8px 2px 6px; }
+  .prow { display:flex; flex-wrap:wrap; align-items:center; gap:6px 8px; padding:6px 8px; border-radius:var(--radius-sm); border-bottom:.5px solid var(--border); }
+  .prow:last-child { border-bottom:none; }
+  .p-l { flex:1 1 132px; min-width:118px; font-size:13.5px; font-weight:500; line-height:1.35; }
+  .p-l .u { font-size:11px; color:var(--text-muted); font-weight:400; }
+  .p-l .sub { display:block; font-size:10.5px; color:var(--text-muted); font-weight:400; }
+  .p-i { width:76px; font-family:var(--font); font-size:15px; font-weight:600; text-align:center; padding:6px 4px; border:1px solid var(--border-strong); border-radius:var(--radius-sm); background:var(--surface); color:var(--text-primary); }
+  .p-i:focus { outline:2px solid var(--accent-blue); outline-offset:1px; border-color:var(--accent-blue); }
+  .p-i.calc { background:var(--surface-alt); border-style:dashed; color:var(--text-primary); }
+  .p-ref { width:88px; text-align:center; font-size:11px; color:var(--text-muted); font-variant-numeric:tabular-nums; line-height:1.25; }
+  .p-b { width:96px; text-align:center; font-size:11px; font-weight:600; padding:4px 6px; border-radius:99px; border:.5px solid transparent; }
+  .p-b.empty { color:var(--text-muted); background:var(--pill-gray-bg); }
+  select.p-i { width:auto; min-width:130px; flex:1 1 130px; font-size:13px; font-weight:500; text-align:left; }
+  input[type=text].p-i { width:100%; flex:1 1 100%; text-align:left; font-weight:400; font-size:13px; }
+
+  /* ── box ────────────────────────────────────────────────── */
+  .box { padding:12px 14px; margin:.9rem 0; font-size:13px; line-height:1.6; border-left:3px solid; border-radius:0 var(--radius-sm) var(--radius-sm) 0; }
+  .box b { display:block; font-size:11px; letter-spacing:.05em; text-transform:uppercase; margin-bottom:4px; }
+  .box ul { list-style:none; padding:0; margin:.3rem 0 0; }
+  .box li { padding:2px 0 2px 15px; position:relative; }
+  .box li::before { content:'–'; position:absolute; left:0; color:var(--text-muted); }
+  .box-accent { background:var(--accent-blue-bg); border-color:var(--accent-blue-border); } .box-accent b { color:var(--accent-blue); }
+  .box-warn { background:var(--accent-amber-bg); border-color:var(--accent-amber-border); } .box-warn b { color:var(--accent-amber); }
+  .box-red { background:var(--accent-red-bg); border-color:var(--accent-red-border); } .box-red b { color:var(--accent-red); }
+  .box-ok { background:var(--accent-green-bg); border-color:var(--accent-green-border); } .box-ok b { color:var(--accent-green); }
+  .box-teal { background:var(--accent-teal-bg); border-color:var(--accent-teal-border); } .box-teal b { color:var(--accent-teal); }
+  .box-purple { background:var(--accent-purple-bg); border-color:var(--accent-purple-border); } .box-purple b { color:var(--accent-purple); }
+  .verdict { font-size:15px; font-weight:600; line-height:1.4; }
+  .verdict .sub { display:block; font-size:12px; font-weight:400; color:var(--text-secondary); margin-top:3px; }
+
+  /* ── sotto-tab valvole ──────────────────────────────────── */
+  .subnav { display:flex; gap:5px; flex-wrap:wrap; margin:.6rem 0 .2rem; }
+  .subnav button { font-family:var(--font); font-size:12px; font-weight:600; padding:6px 12px; border-radius:var(--radius-sm); border:.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
+  .subnav button.on { background:var(--accent-teal); color:#fff; border-color:var(--accent-teal); }
+  .sub-tab { display:none; } .sub-tab.on { display:block; }
+
+  /* ── bull's eye 17 segmenti ─────────────────────────────── */
+  .bull-wrap { display:flex; gap:14px; flex-wrap:wrap; align-items:flex-start; }
+  .bull { flex:0 0 auto; }
+  .bull svg { width:280px; height:280px; max-width:100%; touch-action:manipulation; }
+  .bull path, .bull circle { cursor:pointer; stroke:#FFFFFF; stroke-width:1.6; }
+  .bull text { font-family:var(--font); font-size:8.5px; font-weight:600; pointer-events:none; fill:#0B0B0B; text-anchor:middle; }
+  .wm-legend { display:flex; flex-direction:column; gap:5px; font-size:11.5px; flex:1 1 150px; }
+  .wm-legend span { display:inline-flex; align-items:center; gap:6px; }
+  .wm-legend i { width:13px; height:13px; border-radius:3px; display:inline-block; border:.5px solid var(--border-strong); }
+
+  /* ── referto ────────────────────────────────────────────── */
+  .rep { background:var(--surface); border:.5px solid var(--border-strong); border-radius:var(--radius-lg); padding:1rem 1.1rem; margin-top:.6rem; }
+  .rep-t { font-size:13.5px; line-height:1.85; white-space:pre-wrap; }
+  .rep-t .ph { background:var(--accent-amber-bg); color:var(--accent-amber); border-radius:3px; padding:0 3px; font-weight:600; }
+  .btnrow { display:flex; gap:8px; flex-wrap:wrap; margin:.8rem 0; }
+  .btn { font-family:var(--font); font-size:13px; font-weight:600; padding:9px 16px; border-radius:99px; border:1px solid var(--text-primary); background:var(--text-primary); color:#fff; cursor:pointer; }
+  .btn.sec { background:var(--surface); color:var(--text-primary); }
+  .btn.warn { background:var(--surface); color:var(--accent-red); border-color:var(--accent-red-border); }
+
+  .footer { font-size:11px; color:var(--text-muted); line-height:1.6; margin-top:2.2rem; border-top:.5px solid var(--border); padding-top:.9rem; }
+  .src { display:inline-block; font-size:10px; font-weight:600; padding:1px 7px; border-radius:99px; background:var(--pill-gray-bg); color:var(--pill-gray-fg); margin-right:5px; }
+
+  @media (max-width:560px) {
+    .p-l { flex:1 1 100%; }
+    .p-i { flex:0 0 72px; }
+    .p-ref { width:auto; flex:1 1 auto; text-align:left; }
+    .p-b { width:auto; flex:0 0 auto; padding:4px 10px; }
+    .page { padding:1rem .6rem 3rem; }
+    .grp { padding:.4rem .5rem .6rem; }
+  }
+  @media print { .stickyhead,.btnrow { display:none; } .tab { display:block !important; } }
+</style>
+<style data-iphone="stile">
+/* L'avviso e' visibile per costruzione: lo nasconde solo la classe che la
+   sentinella mette quando JavaScript esiste, e lo rimostra quando il motore
+   muore. Nell'anteprima dell'iPhone nessuna delle due arriva. */
+#nomotore{background:#FCEBEB;border:1.5px solid #A32D2D;border-radius:10px;
+ padding:12px 15px;margin:0 0 1.1rem;font-size:13.5px;line-height:1.6;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+#nomotore strong{display:block;color:#A32D2D;font-size:15px;margin-bottom:4px}
+#nomotore p{margin:6px 0 0}
+#nomotore a{color:#A32D2D}
+#nomotore .nmurl{font-family:'SFMono-Regular',Consolas,Menlo,monospace;font-size:.92em;word-break:break-all}
+#nomotore .nmerr{display:block;font-family:'SFMono-Regular',Consolas,Menlo,monospace;
+ font-size:11.5px;color:#A32D2D;margin-top:6px;word-break:break-word}
+#nomotore .nmerr:empty{display:none}
+html.js #nomotore{display:none}
+html.js.motore-ko #nomotore{display:block}
+
+#nmprivacy{background:#E2F4F5;border:1px solid #A7DBDE;border-radius:8px;padding:9px 13px;
+ margin:0 0 1rem;font-size:12.5px;line-height:1.55;color:#0B0B0B;
+ font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif}
+@media print{#nmprivacy{display:none}}
+</style>
+</head>
+<body>
+<div class="nomotore" id="nomotore" role="alert">
+ <strong>Motore di calcolo non attivo</strong>
+ <p>I calcoli, i filtri e i comandi di questa pagina <b>non funzionano</b>: dove leggi «—» non c'è un
+ valore. Il testo resta leggibile, i numeri che dipendono dai tuoi dati no. Non usare questa pagina
+ per decidere una dose.</p>
+ <p>Su iPhone e iPad succede sempre con un file salvato sul telefono: si apre nell'<b>anteprima</b> —
+ dall'app File, da Mail, da WhatsApp —, che mostra la pagina ma non esegue il motore, e Apple non
+ permette di aprirlo in Safari. Sull'iPhone il tool funziona aperto da questo indirizzo, in Safari: <a class="nmurl" href="https://francescofugetto-ai.github.io/eco-tte-web/">https://francescofugetto-ai.github.io/eco-tte-web/</a> — poi Condividi, «Aggiungi alla schermata Home». Dopo la prima apertura funziona anche senza rete. Su computer e Android basta aprire il file.</p>
+ <span class="nmerr" id="nmerr"></span>
+</div>
+<div class="nmprivacy" id="nmprivacy">
+ <b>Quello che scrivi resta su questo dispositivo.</b> La pagina non invia niente in rete e non
+ salva niente: nessun dato esce da qui. Per la stessa ragione, <b>chiudendola il contenuto si
+ perde</b> — copia il referto dove ti serve prima di chiudere.
+</div>
+
+<div class="stickyhead">
+<div class="topbar"><div class="topbar-in">
+  <span class="sexsw"><button id="sxM" class="on">Uomo</button><button id="sxF">Donna</button></span>
+  <span class="mini">Peso <input id="peso" inputmode="decimal" placeholder="—"> kg</span>
+  <span class="mini">Alt <input id="alt" inputmode="decimal" placeholder="—"> cm</span>
+  <span class="mini">FC <input id="fc" inputmode="decimal" placeholder="—"> bpm</span>
+  <span class="mini">Età <input id="eta" inputmode="decimal" placeholder="—"> aa</span>
+  <span class="mini">PA <input id="pas" inputmode="decimal" placeholder="—" style="width:38px">/<input id="pad" inputmode="decimal" placeholder="—" style="width:38px"> mmHg</span>
+  <span class="bsa-chip" id="bsaChip">BSA —</span>
+</div></div>
+
+<div class="navwrap"><div class="nav" id="nav"></div></div>
+</div>
+
+<div class="page">
+  <div class="kicker">Ecocardiografia transtoracica · adulto</div>
+  <div class="headline">Scheda di misura e refertazione</div>
+  <div class="hint">Valori di normalità sesso-specifici da <strong>ASE/EACVI Chamber Quantification 2015</strong> (quick reference 2018); diastole da <strong>ASE 2025</strong>; valvulopatie native da <strong>EACVI 2013</strong> (con integrazione EACVI/ASE 2017 per la stenosi); protesi da <strong>EACVI 2016</strong>. Il colore della riga scala con la distanza dal limite di normalità. Nessun dato esce dal dispositivo.</div>
+
+  <div id="tabs"></div>
+
+  <div class="footer">
+    <span class="src">Nota</span> Strumento di supporto alla misura e alla stesura del referto: <strong>non sostituisce il giudizio clinico</strong>. Verificare sempre le misure e il testo generato prima di firmare il referto.
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════════════════════
+   ECO TTE — motore
+   ═══════════════════════════════════════════════════════════════════════════ */
+(function(){
+"use strict";
+
+/* ── stato ──────────────────────────────────────────────────────────────── */
+var S = { sex:'M' };          // valori misurati, chiave -> numero/stringa
+var D = {};                   // valori derivati
+var SEG = {};                 // cinetica segmentaria
+
+/* ── utility ────────────────────────────────────────────────────────────── */
+function $(id){ return document.getElementById(id); }
+function num(v){ if(v===null||v===undefined||v==='') return null; var x=parseFloat(String(v).replace(',','.')); return isFinite(x)?x:null; }
+function nf(v,d){ if(v===null||v===undefined||!isFinite(v)) return null; var s=v.toFixed(d===undefined?1:d); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s.replace('.',','); }
+function nff(v,d){ if(v===null||v===undefined||!isFinite(v)) return null; return v.toFixed(d===undefined?1:d).replace('.',','); }
+function g(k){ var v=S[k]; return (v===undefined||v===''||v===null)?null:v; }
+function n(k){ var v=D[k]!==undefined?D[k]:S[k]; return num(v); }
+function has(){ for(var i=0;i<arguments.length;i++){ if(n(arguments[i])===null) return false; } return true; }
+
+/* ── colore continuo verde → giallo → arancio → rosso ───────────────────── */
+var STOPS = [
+  {t:0.00, fg:[59,109,17],  bg:[234,243,222], bd:[192,221,151]},
+  {t:0.35, fg:[150,120,10], bg:[251,243,214], bd:[247,214,132]},
+  {t:0.68, fg:[186,117,23], bg:[250,232,214], bd:[245,193,140]},
+  {t:1.00, fg:[163,45,45],  bg:[251,227,227], bd:[240,178,178]}
+];
+function lerp(a,b,f){ return Math.round(a+(b-a)*f); }
+function sevColor(t){
+  t = Math.max(0, Math.min(1, t));
+  var i=0; while(i<STOPS.length-2 && t>STOPS[i+1].t) i++;
+  var a=STOPS[i], b=STOPS[i+1], f=(t-a.t)/(b.t-a.t);
+  var mk=function(p){ return 'rgb('+lerp(a[p][0],b[p][0],f)+','+lerp(a[p][1],b[p][1],f)+','+lerp(a[p][2],b[p][2],f)+')'; };
+  return { fg:mk('fg'), bg:mk('bg'), bd:mk('bd') };
+}
+var BLUE = { fg:'#2A78D6', bg:'#E6F1FB', bd:'#B5D4F4' };
+
+/* ── grading ─────────────────────────────────────────────────────────────────
+   spec: { lln, uln, hi:[fineLieve, fineModerato], lo:[inizioLieve, inizioModerato] }
+   hi  → valori ALTI patologici · lo → valori BASSI patologici
+   restituisce { t:0..1, lab, low:bool }                                       */
+var DEFLAB = { 1:['alterato'], 2:['lieve','severo'], 3:['lieve','moderato','severo'], 4:['lieve','moderato','severo','critico'] };
+function bands(v, start, cuts, up, labs){
+  /* cuts = limiti superiori (up=true) o inferiori (up=false) delle bande successive */
+  var nb = cuts.length + 1, span = 0.85/nb, L = labs || DEFLAB[nb] || DEFLAB[3];
+  var prev = start;
+  for(var i=0;i<cuts.length;i++){
+    var lim = cuts[i], inside = up ? (v<=lim) : (v>=lim);
+    if(inside){
+      var f = Math.abs(lim-prev)>0.0001 ? Math.abs(v-prev)/Math.abs(lim-prev) : 1;
+      return { t:0.15+span*(i+Math.min(1,f)), lab:L[i]||L[L.length-1] };
+    }
+    prev = lim;
+  }
+  var ref = Math.abs(prev)>0.0001?Math.abs(prev):1;
+  var f2 = Math.min(1, Math.abs(v-prev)/(0.30*ref));
+  return { t:0.15+span*(cuts.length+f2), lab:L[cuts.length]||L[L.length-1] };
+}
+function grade(v, sp){
+  if(v===null||!sp) return null;
+  var L = { t:0, lab:'norma' };
+  if(sp.hi){
+    if(sp.lln!==undefined && sp.lln!==null && v < sp.lln) return { t:0.22, lab:'sotto range', low:true };
+    if(sp.uln===null||sp.uln===undefined||v<=sp.uln) return L;
+    return bands(v, sp.uln, sp.hi, true, sp.labs);
+  }
+  if(sp.lo){
+    if(sp.uln!==undefined && sp.uln!==null && v > sp.uln) return { t:0.22, lab:sp.hiLab||'sopra range' };
+    if(sp.lln===null||sp.lln===undefined||v>=sp.lln) return L;
+    return bands(v, sp.lln, sp.lo, false, sp.labs);
+  }
+  /* range puro senza gradazione */
+  if(sp.lln!==null&&sp.lln!==undefined&&v<sp.lln) return { t:0.15+0.85*Math.min(1,(sp.lln-v)/(0.35*sp.lln)), lab:'sotto range', low:true };
+  if(sp.uln!==null&&sp.uln!==undefined&&v>sp.uln) return { t:0.15+0.85*Math.min(1,(v-sp.uln)/(0.35*sp.uln)), lab:'sopra range' };
+  return L;
+}
+function spec(p){
+  if(p.fn) return p.fn();
+  var sp = p.sx ? p.sx[S.sex] : p.r;
+  return sp || null;
+}
+function refText(sp){
+  if(!sp) return '';
+  if(sp.txt) return sp.txt;
+  var lo = (sp.lln!==null&&sp.lln!==undefined)?nf(sp.lln,1):null;
+  var hi = (sp.uln!==null&&sp.uln!==undefined)?nf(sp.uln,1):null;
+  if(lo!==null&&hi!==null) return lo+'–'+hi;
+  if(hi!==null) return '≤ '+hi;
+  if(lo!==null) return '≥ '+lo;
+  return '';
+}
+
+/* ── rendering di una riga parametro ────────────────────────────────────── */
+function rowHTML(p){
+  var sp = spec(p), unit = p.u?' <span class="u">'+p.u+'</span>':'';
+  var sub = p.s?'<span class="sub">'+p.s+'</span>':'';
+  if(p.type==='select'){
+    var o='';
+    for(var i=0;i<p.opt.length;i++){ o+='<option value="'+p.opt[i]+'">'+(p.opt[i]===''?'—':p.opt[i])+'</option>'; }
+    return '<div class="prow" data-row="'+p.k+'"><label class="p-l" for="f_'+p.k+'">'+p.l+sub+'</label>'+
+           '<select class="p-i" id="f_'+p.k+'" data-k="'+p.k+'">'+o+'</select>'+
+           '<span class="p-ref" id="r_'+p.k+'"></span><span class="p-b empty" id="b_'+p.k+'">—</span></div>';
+  }
+  if(p.type==='text'){
+    return '<div class="prow" data-row="'+p.k+'"><label class="p-l" for="f_'+p.k+'">'+p.l+sub+'</label>'+
+           '<input type="text" class="p-i" id="f_'+p.k+'" data-k="'+p.k+'" placeholder="'+(p.ph||'')+'"></div>';
+  }
+  return '<div class="prow" data-row="'+p.k+'"><label class="p-l" for="f_'+p.k+'">'+p.l+unit+sub+'</label>'+
+         '<input class="p-i'+(p.calc?' calc':'')+'" id="f_'+p.k+'" data-k="'+p.k+'" inputmode="decimal" placeholder="'+(p.calc?'auto':'—')+'"'+(p.calc?' readonly':'')+'>'+
+         '<span class="p-ref" id="r_'+p.k+'">'+refText(sp)+'</span>'+
+         '<span class="p-b empty" id="b_'+p.k+'">—</span></div>';
+}
+function groupHTML(title, params, hint){
+  var h = '<div class="grp">'+(title?'<div class="grp-h">'+title+'</div>':'');
+  for(var i=0;i<params.length;i++) h += rowHTML(params[i]);
+  return h + '</div>' + (hint?'<div class="hint">'+hint+'</div>':'');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODELLO DEI PARAMETRI
+   sx = cut-off sesso-specifici · r = cut-off comuni · calc = derivato
+   ═══════════════════════════════════════════════════════════════════════════ */
+var P = {};   // dizionario k -> parametro (riempito da reg)
+function reg(list){ for(var i=0;i<list.length;i++) P[list[i].k]=list[i]; return list; }
+
+/* ── VENTRICOLO SINISTRO ────────────────────────────────────────────────── */
+var LV_LIN = reg([
+  {k:'IVSd', l:'IVSd', u:'mm', sx:{M:{lln:6,uln:10,hi:[13,16]}, F:{lln:6,uln:9,hi:[12,15]}}},
+  {k:'LVPWd',l:'LVPWd',u:'mm', sx:{M:{lln:6,uln:10,hi:[13,16]}, F:{lln:6,uln:9,hi:[12,15]}}},
+  {k:'LVIDd',l:'LVIDd', u:'mm', sx:{M:{lln:42,uln:58,hi:[63,68]}, F:{lln:38,uln:52,hi:[56,61]}}},
+  {k:'LVIDs',l:'LVIDs', u:'mm', sx:{M:{lln:25,uln:40,hi:[43,45]}, F:{lln:22,uln:35,hi:[38,41]}}},
+  {k:'LVIDdi',l:'LVIDd/BSA', u:'mm/m²', calc:1, sx:{M:{lln:22,uln:30,hi:[33,36]}, F:{lln:23,uln:31,hi:[34,37]}}}
+]);
+var LV_VOL = reg([
+  {k:'EDV', l:'Volume telediastolico', u:'ml', sx:{M:{lln:62,uln:150,hi:[174,200]}, F:{lln:46,uln:106,hi:[120,130]}}},
+  {k:'EDVi',l:'VTD indicizzato', u:'ml/m²', calc:1, sx:{M:{lln:34,uln:74,hi:[89,100]}, F:{lln:29,uln:61,hi:[70,80]}}},
+  {k:'ESV', l:'Volume telesistolico', u:'ml', sx:{M:{lln:21,uln:61,hi:[73,85]}, F:{lln:14,uln:42,hi:[55,67]}}},
+  {k:'ESVi',l:'VTS indicizzato', u:'ml/m²', calc:1, sx:{M:{lln:11,uln:31,hi:[38,45]}, F:{lln:8,uln:24,hi:[32,40]}}}
+]);
+var LV_GEO = reg([
+  {k:'mass', l:'Massa VS', u:'g', calc:1, r:{txt:''}},
+  {k:'massi',l:'Massa indicizzata', u:'g/m²', calc:1, sx:{M:{uln:115,hi:[131,148]}, F:{uln:95,hi:[108,121]}}},
+  {k:'rwt',  l:'RWT', u:'', calc:1, r:{uln:0.42, hi:[]}}
+]);
+var LV_FUN = reg([
+  {k:'ef',  l:'FE biplano (Simpson)', u:'%', calc:1, sx:{M:{lln:52,uln:72,lo:[41,30]}, F:{lln:54,uln:74,lo:[41,30]}}},
+  {k:'efm', l:'FE misurata / stimata', u:'%', s:'usa questo campo se non inserisci i volumi', sx:{M:{lln:52,uln:72,lo:[41,30]}, F:{lln:54,uln:74,lo:[41,30]}}},
+  {k:'sf',  l:'Frazione di accorciamento', u:'%', calc:1, r:{lln:25,uln:43,lo:[20,15]}},
+  {k:'sSep',l:"S' settale (TDI)", u:'cm/s', r:{lln:6, uln:10.9, lo:[]}},
+  {k:'sLat',l:"S' laterale (TDI)", u:'cm/s', r:{lln:6.7, uln:14.6, lo:[]}},
+  {k:'sAvg',l:"S' medio", u:'cm/s', calc:1, r:{lln:6.8, uln:12.2, lo:[]}},
+  {k:'gls', l:'GLS (valore assoluto)', u:'%', s:'inserisci senza segno: es. 19 per −19%', r:{lln:18, uln:null, lo:[16,12]}}
+]);
+
+/* ── VENTRICOLO DESTRO ──────────────────────────────────────────────────── */
+var RV_DIM = reg([
+  {k:'rvBase',l:'Diametro basale (RVD1)', u:'mm', r:{lln:25,uln:41,hi:[]}},
+  {k:'rvMid', l:'Diametro medio (RVD2)', u:'mm', r:{lln:19,uln:35,hi:[]}},
+  {k:'rvLong',l:'Diametro longitudinale', u:'mm', r:{lln:59,uln:83,hi:[]}},
+  {k:'rvWall',l:'Spessore parete libera', u:'mm', r:{lln:1,uln:5,hi:[]}},
+  {k:'rvotP', l:'RVOT prossimale (PLAX)', u:'mm', r:{lln:20,uln:30,hi:[]}},
+  {k:'rvotD', l:'RVOT distale', u:'mm', r:{lln:17,uln:27,hi:[]}},
+  {k:'rvEDA', l:'Area telediastolica', u:'cm²', sx:{M:{lln:10,uln:24,hi:[]}, F:{lln:8,uln:20,hi:[]}}},
+  {k:'rvESA', l:'Area telesistolica', u:'cm²', sx:{M:{lln:3,uln:15,hi:[]}, F:{lln:3,uln:11,hi:[]}}},
+  {k:'rvEDVi',l:'VTD VD indicizzato (3D)', u:'ml/m²', sx:{M:{lln:35,uln:87,hi:[]}, F:{lln:32,uln:74,hi:[]}}},
+  {k:'rvESVi',l:'VTS VD indicizzato (3D)', u:'ml/m²', sx:{M:{lln:10,uln:44,hi:[]}, F:{lln:8,uln:36,hi:[]}}}
+]);
+var RV_FUN = reg([
+  {k:'tapse',l:'TAPSE', u:'mm', r:{lln:17, lo:[14,11]}},
+  {k:'rvS',  l:"S' tricuspidale (TDI)", u:'cm/s', r:{lln:9.5, lo:[8,6]}},
+  {k:'fac',  l:'FAC', u:'%', calc:1, r:{lln:35, lo:[30,25]}},
+  {k:'rvEF', l:'FE VD (3D)', u:'%', r:{lln:45, lo:[40,30]}},
+  {k:'rvFWS',l:'Strain parete libera (assoluto)', u:'%', s:'inserisci senza segno', r:{lln:20, lo:[17,13]}},
+  {k:'rimp', l:'RIMP (TDI)', u:'', r:{uln:0.54, hi:[]}}
+]);
+var RV_PRESS = reg([
+  {k:'trVmax',l:'TR V max', u:'m/s', r:{uln:2.8, hi:[3.4,4.0]}},
+  {k:'trGrad',l:'Gradiente VD–AD', u:'mmHg', calc:1, r:{uln:31, hi:[]}},
+  {k:'rap',   l:'PAD stimata (da VCI)', u:'mmHg', calc:1, r:{uln:8, hi:[]}},
+  {k:'paps',  l:'PAPs stimata', u:'mmHg', calc:1, r:{uln:35, hi:[45,60]}},
+  {k:'paat',  l:'Tempo di accelerazione polmonare', u:'ms', r:{lln:100, uln:153, lo:[90,70]}},
+  {k:'prEnd', l:'PR telediastolica V', u:'m/s', s:'per PAPd = 4v² + PAD'},
+  {k:'papd',  l:'PAPd stimata', u:'mmHg', calc:1, r:{uln:15, hi:[]}},
+  {k:'rvotVTI',l:'VTI RVOT', u:'cm'},
+  {k:'pvr',   l:'PVR (Abbas)', u:'WU', calc:1, r:{uln:2, hi:[3,5]}}
+]);
+
+/* ── ATRI ───────────────────────────────────────────────────────────────── */
+var LA_P = reg([
+  {k:'lad', l:'Diametro AP (PLAX)', u:'mm', sx:{M:{lln:30,uln:40,hi:[]}, F:{lln:27,uln:38,hi:[]}}},
+  {k:'aoRoot2',l:'Aorta (stesso piano)', u:'mm', s:'per il rapporto LAd/Ao'},
+  {k:'ladAo',l:'LAd / Ao', u:'', calc:1, r:{uln:1.5, hi:[]}},
+  {k:'laa', l:'Area atrio sinistro (4C)', u:'cm²', r:{uln:20, hi:[30,40]}},
+  {k:'lav', l:'Volume atrio sinistro', u:'ml'},
+  {k:'lavi',l:'LAVi', u:'ml/m²', calc:1, r:{lln:16, uln:34, hi:[41,48]}},
+  {k:'lars',l:'LA reservoir strain (LARS)', u:'%', s:'valore positivo; ≤18% = disfunzione severa', r:{lln:35, lo:[24,18]}}
+]);
+var RA_P = reg([
+  {k:'raa', l:'Area atrio destro (4C)', u:'cm²', r:{uln:18, hi:[]}},
+  {k:'rav', l:'Volume atrio destro', u:'ml'},
+  {k:'ravi',l:'RAVi', u:'ml/m²', calc:1, sx:{M:{uln:39,hi:[]}, F:{uln:33,hi:[]}}}
+]);
+
+/* ── AORTA ──────────────────────────────────────────────────────────────── */
+var AO_P = reg([
+  {k:'aoAnn',l:'Anulus', u:'mm', sx:{M:{uln:30.9,hi:[]}, F:{uln:26.3,hi:[]}}},
+  {k:'aoSoV',l:'Seni di Valsalva', u:'mm', sx:{M:{uln:37.7,hi:[42,45]}, F:{uln:32.1,hi:[38,45]}}},
+  {k:'aoSTJ',l:'Giunzione sinotubulare', u:'mm', sx:{M:{uln:32,hi:[]}, F:{uln:27.4,hi:[]}}},
+  {k:'aoAsc',l:'Aorta ascendente (tubulare)', u:'mm', sx:{M:{uln:33,hi:[44,54]}, F:{uln:28.8,hi:[44,54]}}},
+  {k:'aoArch',l:'Arco aortico', u:'mm', r:{uln:35, hi:[44,54]}},
+  {k:'aoDesc',l:'Aorta discendente', u:'mm', r:{uln:30, hi:[39,49]}},
+  {k:'aoAbd', l:'Aorta addominale', u:'mm', r:{uln:25, hi:[29,39]}},
+  {k:'aoSoVi',l:'Seni di Valsalva / BSA', u:'mm/m²', calc:1, r:{uln:21, hi:[]}}
+]);
+
+/* ── VENA CAVA / PERICARDIO ─────────────────────────────────────────────── */
+var VCI_P = reg([
+  {k:'vciMax',l:'Diametro massimo', u:'mm', r:{uln:21, hi:[]}},
+  {k:'vciMin',l:'Diametro minimo (sniff)', u:'mm'},
+  {k:'vciColl',l:'Collassabilità', u:'%', calc:1, r:{lln:50, lo:[]}}
+]);
+var PERI_P = reg([
+  {k:'peri', l:'Versamento pericardico', type:'select', opt:['assente','falda','lieve','moderato','abbondante']},
+  {k:'periSede', l:'Sede / note', type:'text', ph:'es. circonferenziale, max 12 mm posteriore'},
+  {k:'tamp', l:'Segni di impegno emodinamico', type:'select', opt:['assenti','collasso AD','collasso VD','swinging heart / tamponamento']}
+]);
+
+/* ── EMODINAMICA ────────────────────────────────────────────────────────── */
+var HEMO_P = reg([
+  {k:'lvotD',l:'Diametro LVOT', u:'mm'},
+  {k:'lvotVTI',l:'VTI LVOT', u:'cm', r:{lln:18, uln:22, lo:[]}},
+  {k:'lvotArea',l:'Area LVOT', u:'cm²', calc:1},
+  {k:'sv',  l:'Gittata sistolica (Doppler)', u:'ml', calc:1, r:{lln:50, uln:100, lo:[]}},
+  {k:'svi', l:'SV indicizzata', u:'ml/m²', calc:1, r:{lln:35, lo:[30,25]}},
+  {k:'co',  l:'Portata cardiaca', u:'L/min', calc:1, r:{lln:4, uln:8, lo:[]}},
+  {k:'ci',  l:'Indice cardiaco', u:'L/min/m²', calc:1, r:{lln:2.5, uln:4, lo:[2.2,1.8]}},
+  {k:'svVol',l:'Gittata sistolica (volumetrica)', u:'ml', calc:1}
+]);
+
+/* ── DIASTOLE (ASE 2025) ────────────────────────────────────────────────────
+   e' patologica: settale ≤6 · laterale ≤7 · media ≤6.5 cm/s
+   (cut-off età-specifici Tab. 6: 20-39 → 7/10/9 · 40-65 → 6/8/7 · >65 → 6/7/6.5) */
+function ageCut(a, y1, y2, y3){
+  var e = num(S.eta);
+  if(e===null) return y3;          // in assenza di età uso il cut-off più conservativo (>65 aa)
+  if(e<40) return y1;
+  if(e<=65) return y2;
+  return y3;
+}
+var DIA_P = reg([
+  {k:'E',   l:'Onda E', u:'cm/s'},
+  {k:'A',   l:'Onda A', u:'cm/s'},
+  {k:'EA',  l:'E/A', u:'', calc:1, r:{lln:0.8, uln:2, txt:'0,8–2'}},
+  {k:'DT',  l:'Tempo di decelerazione', u:'ms', r:{lln:160, uln:240, txt:'160–240'}},
+  {k:'IVRT',l:'IVRT', u:'ms', r:{lln:70, uln:90, txt:'70–90'}},
+  {k:'eSep',l:"e' settale", u:'cm/s', fn:function(){ var c=ageCut(0,7,6,6); return {lln:c, lo:[c-1.5,c-3], txt:'≥ '+nf(c,1)}; }},
+  {k:'eLat',l:"e' laterale", u:'cm/s', fn:function(){ var c=ageCut(0,10,8,7); return {lln:c, lo:[c-2,c-4], txt:'≥ '+nf(c,1)}; }},
+  {k:'eAvg',l:"e' media", u:'cm/s', calc:1, fn:function(){ var c=ageCut(0,9,7,6.5); return {lln:c, lo:[c-1.5,c-3], txt:'≥ '+nf(c,1)}; }},
+  {k:'EeSep',l:"E/e' settale", u:'', calc:1, r:{uln:14, hi:[15], labs:['borderline','aumentato'], txt:'≤ 14 (≥15 ↑)'}},
+  {k:'EeLat',l:"E/e' laterale", u:'', calc:1, r:{uln:12, hi:[13], labs:['borderline','aumentato'], txt:'≤ 12 (≥13 ↑)'}},
+  {k:'EeAvg',l:"E/e' media", u:'', calc:1, r:{uln:13, hi:[14], labs:['borderline','aumentato'], txt:'≤ 13 (>14 ↑)'}},
+  {k:'pvS', l:'Vena polmonare — onda S', u:'cm/s'},
+  {k:'pvD', l:'Vena polmonare — onda D', u:'cm/s'},
+  {k:'pvSD',l:'S/D', u:'', calc:1, r:{lln:0.68, lo:[], txt:'> 0,67'}},
+  {k:'arA', l:'Ar − A (durata)', u:'ms', r:{uln:29, hi:[], txt:'< 30'}},
+  {k:'lwave',l:'Onda L mesodiastolica', type:'select', opt:['assente','presente (≥50 cm/s)']},
+  {k:'ritmo',l:'Ritmo', type:'select', opt:['sinusale','fibrillazione atriale','pacing/BBSn','flutter atriale','altro']}
+]);
+
+/* ── VALVOLA AORTICA NATIVA ─────────────────────────────────────────────── */
+var AV_MORF = reg([
+  {k:'avMorf',l:'Morfologia', type:'select', opt:['tricuspide','bicuspide','bicuspide funzionale','monocuspide','quadricuspide','protesi','non valutabile']},
+  {k:'avCalc',l:'Calcificazione (grado 1–4)', type:'select', opt:['assente','grado 1 — assente/minima','grado 2 — spot isolati','grado 3 — spot che interferiscono','grado 4 — estesa con restrizione']},
+  {k:'avOpen',l:'Apertura', type:'select', opt:['conservata','lievemente ridotta','ridotta','marcatamente ridotta']}
+]);
+var AS_P = reg([
+  {k:'asVmax',l:'V max transaortica', u:'m/s', r:{uln:2.5, hi:[2.9,3.9], labs:['lieve','moderata','severa'], txt:'sclerosi ≤2,5'}},
+  {k:'asMG', l:'Gradiente medio', u:'mmHg', r:{uln:10, hi:[19,39], labs:['lieve','moderata','severa'], txt:'lieve<20 sev≥40'}},
+  {k:'asVTI',l:'VTI transaortico', u:'cm'},
+  {k:'ava',  l:'Area valvolare (continuità)', u:'cm²', calc:1, r:{lln:2, lo:[1.5,1.0], labs:['lieve','moderata','severa'], txt:'sev <1,0'}},
+  {k:'avai', l:'AVA indicizzata', u:'cm²/m²', calc:1, r:{lln:0.85, lo:[0.6,0.45], labs:['lieve','moderata','severa'], txt:'sev <0,6'}},
+  {k:'dvi',  l:'DVI (VTI LVOT / VTI Ao)', u:'', calc:1, r:{lln:0.5, lo:[0.25,0.25], labs:['ridotto','severo'], txt:'sev <0,25'}},
+  {k:'asAT', l:'Tempo di accelerazione', u:'ms', r:{uln:94, hi:[], txt:'< 95'}}
+]);
+var AR_P = reg([
+  {k:'arVC', l:'Vena contracta', u:'mm', r:{uln:2.9, hi:[5.9], labs:['moderata','severa'], txt:'lieve<3 sev≥6'}},
+  {k:'arJet',l:'Jet / diametro LVOT', u:'%', r:{uln:24, hi:[64], labs:['moderata','severa'], txt:'sev >65'}},
+  {k:'arPHT',l:'Pressure half-time', u:'ms', r:{lln:500, lo:[200], labs:['moderata','severa'], txt:'sev <200'}},
+  {k:'arPISAr',l:'Raggio PISA', u:'mm', s:'con Nyquist (Va) impostata'},
+  {k:'arVa', l:'Velocità di aliasing (Va)', u:'cm/s'},
+  {k:'arVmax',l:'V max del rigurgito', u:'m/s'},
+  {k:'arVTI',l:'VTI del rigurgito', u:'cm'},
+  {k:'arERO',l:'EROA', u:'mm²', calc:1, r:{uln:9, hi:[29], labs:['moderata','severa'], txt:'sev ≥30'}},
+  {k:'arRV', l:'Volume rigurgitante', u:'ml', calc:1, r:{uln:29, hi:[59], labs:['moderata','severa'], txt:'sev ≥60'}},
+  {k:'arRF', l:'Frazione rigurgitante', u:'%', r:{uln:29, hi:[49], labs:['moderata','severa'], txt:'sev >50'}},
+  {k:'arRev',l:'Reversal telediastolico aorta discendente', u:'cm/s', r:{uln:19, hi:[], txt:'sev >20'}},
+  {k:'arMecc',l:'Meccanismo (Carpentier)', type:'select', opt:['—','tipo I — dilatazione radice','tipo IIa — prolasso di cuspide','tipo IIb — fenestrazione','tipo III — cuspidi rigide/retratte']}
+]);
+
+/* ── VALVOLA MITRALE NATIVA ─────────────────────────────────────────────── */
+var MV_MORF = reg([
+  {k:'mvMorf',l:'Lembi', type:'select', opt:['sottili e mobili','fibrocalcifici','ispessiti','ridondanti (Barlow)','flail','protesi']},
+  {k:'mvMac', l:'Calcificazione anulare (MAC)', type:'select', opt:['assente','lieve','moderata','severa']},
+  {k:'mvMecc',l:'Meccanismo del rigurgito', type:'select', opt:['—','primario/degenerativo (tipo II)','secondario/funzionale (tipo I o IIIb)','reumatico (tipo IIIa)','endocarditico','anulare/atriale']}
+]);
+var MS_P = reg([
+  {k:'msMVA',l:'Area valvolare (planimetria)', u:'cm²', r:{lln:2, lo:[1.5,1.0], labs:['lieve','moderata','severa'], txt:'sev <1,0'}},
+  {k:'msPHT',l:'Pressure half-time', u:'ms', r:{uln:90, hi:[146,219], labs:['lieve','moderata','severa'], txt:'sev >220'}},
+  {k:'msMVApht',l:'Area da PHT (220/PHT)', u:'cm²', calc:1, r:{lln:2, lo:[1.5,1.0], labs:['lieve','moderata','severa'], txt:'sev <1,0'}},
+  {k:'msMG', l:'Gradiente medio', u:'mmHg', r:{uln:4, hi:[9], labs:['moderato','severo'], txt:'lieve<5 sev>10'}},
+  {k:'msScore',l:'Wilkins score', u:'/16'}
+]);
+var MR_P = reg([
+  {k:'mrVC', l:'Vena contracta', u:'mm', r:{uln:2.9, hi:[6.9], labs:['moderata','severa'], txt:'lieve<3 sev≥7'}},
+  {k:'mrPISAr',l:'Raggio PISA', u:'mm'},
+  {k:'mrVa', l:'Velocità di aliasing (Va)', u:'cm/s'},
+  {k:'mrVmax',l:'V max del rigurgito', u:'m/s', r:{txt:''}},
+  {k:'mrVTI',l:'VTI del rigurgito', u:'cm'},
+  {k:'mrERO',l:'EROA', u:'mm²', calc:1, r:{uln:19, hi:[39], labs:['moderata','severa'], txt:'sev ≥40 (≥20 sec.)'}},
+  {k:'mrRV', l:'Volume rigurgitante', u:'ml', calc:1, r:{uln:29, hi:[59], labs:['moderata','severa'], txt:'sev ≥60 (≥30 sec.)'}},
+  {k:'mrRF', l:'Frazione rigurgitante', u:'%', r:{uln:29, hi:[49], labs:['moderata','severa'], txt:'sev >50'}},
+  {k:'mrE',  l:'Onda E mitralica', u:'m/s', r:{uln:1.5, hi:[], txt:'sev >1,5'}},
+  {k:'mrTVI',l:'VTI mitrale / VTI aortico', u:'', r:{uln:1.4, hi:[], txt:'sev >1,4'}},
+  {k:'mrPV', l:'Flusso venoso polmonare', type:'select', opt:['dominanza sistolica','smussamento sistolico','inversione sistolica']},
+  {k:'mrTent',l:'Area di tenting', u:'cm²', r:{uln:1.6, hi:[], txt:'< 1,6'}},
+  {k:'mrCoapt',l:'Distanza di coaptazione', u:'mm', r:{uln:10, hi:[], txt:'< 10'}}
+]);
+
+/* ── VALVOLA TRICUSPIDE E POLMONARE ─────────────────────────────────────── */
+var TV_P = reg([
+  {k:'tvMorf',l:'Lembi', type:'select', opt:['sottili e mobili','ispessiti','tethering','prolasso/flail','Ebstein','protesi']},
+  {k:'trVC', l:'Vena contracta', u:'mm', r:{uln:6.9, hi:[], labs:['severa'], txt:'sev >7'}},
+  {k:'trPISAr',l:'Raggio PISA (Nyquist 28 cm/s)', u:'mm', r:{uln:5, hi:[9], labs:['moderata','severa'], txt:'sev >9'}},
+  {k:'trERO',l:'EROA', u:'mm²', calc:1, r:{uln:39, hi:[], labs:['severa'], txt:'sev ≥40'}},
+  {k:'trRV', l:'Volume rigurgitante', u:'ml', calc:1, r:{uln:44, hi:[], labs:['severa'], txt:'sev ≥45'}},
+  {k:'trVa', l:'Velocità di aliasing (Va)', u:'cm/s'},
+  {k:'trVTI',l:'VTI del rigurgito', u:'cm'},
+  {k:'trHep',l:'Flusso venoso epatico', type:'select', opt:['dominanza sistolica','smussamento sistolico','inversione sistolica']},
+  {k:'tvAnn',l:'Anulus tricuspidale (4C, diastole)', u:'mm', r:{uln:35, hi:[], txt:'< 35 (21 mm/m²)'}},
+  {k:'tvAnni',l:'Anulus / BSA', u:'mm/m²', calc:1, r:{uln:21, hi:[], txt:'≤ 21'}},
+  {k:'tsMG', l:'Gradiente medio (stenosi)', u:'mmHg', r:{uln:4, hi:[], labs:['severa'], txt:'sev ≥5'}},
+  {k:'tsTVA',l:'Area valvolare tricuspide', u:'cm²', r:{lln:1, lo:[], labs:['severa'], txt:'sev ≤1'}}
+]);
+var PV_P = reg([
+  {k:'pvMorf',l:'Valvola polmonare', type:'select', opt:['normale','ispessita','displasica','protesi/conduit','non valutabile']},
+  {k:'psVmax',l:'V max (stenosi)', u:'m/s', r:{uln:2, hi:[2.99,4], labs:['lieve','moderata','severa'], txt:'sev >4'}},
+  {k:'psMG', l:'Gradiente medio', u:'mmHg', r:{uln:15, hi:[], txt:'—'}},
+  {k:'prJet',l:'Jet / diametro RVOT', u:'%', r:{uln:49, hi:[], labs:['severa'], txt:'sev >50–65'}},
+  {k:'prPHT',l:'PHT del rigurgito', u:'ms', r:{lln:100, lo:[], labs:['severa'], txt:'sev <100'}}
+]);
+
+/* ── PROTESI VALVOLARI (EACVI 2016) ─────────────────────────────────────── */
+/* EOA di riferimento, cm² — Tab. 7 (aortica) e Tab. 8 (mitralica) */
+var EOA_AO_SZ = [19,21,23,25,27,29];
+var EOA_AO = {
+  'Mosaic (stentata)':                [1.1,1.2,1.4,1.7,1.8,2.0],
+  'Hancock II (stentata)':            [null,1.2,1.3,1.5,1.6,1.6],
+  'CE Perimount (pericardica)':       [1.1,1.3,1.5,1.8,2.1,2.2],
+  'CE Magna (pericardica)':           [1.3,1.5,1.8,2.1,null,null],
+  'SJM Biocor/Epic (stentata)':       [1.0,1.3,1.4,1.9,null,null],
+  'Mitroflow (pericardica)':          [1.1,1.2,1.4,1.6,1.8,null],
+  'SJM Trifecta (pericardica)':       [1.4,1.6,1.8,2.0,2.2,2.4],
+  'Medtronic Freestyle (stentless)':  [1.2,1.4,1.5,2.0,2.3,null],
+  'SJM Toronto SPV (stentless)':      [null,1.3,1.5,1.7,2.1,2.7],
+  'Prima Edwards (stentless)':        [null,1.3,1.6,1.9,null,null],
+  'Medtronic-Hall (monodisco)':       [1.2,1.3,null,null,null,null],
+  'SJM Standard (bileaflet)':         [1.0,1.4,1.5,2.1,2.7,3.2],
+  'SJM Regent (bileaflet)':           [1.6,2.0,2.2,2.5,3.6,4.4],
+  'MCRI On-X (bileaflet)':            [1.5,1.7,2.0,2.4,3.2,3.2],
+  'Carbomedics Std/Top Hat':          [1.0,1.5,1.7,2.0,2.5,2.6],
+  'ATS Medical (bileaflet)':          [1.1,1.6,1.8,1.9,2.3,null]
+};
+var EOA_MI_SZ = [25,27,29,31,33];
+var EOA_MI = {
+  'Medtronic Mosaic (stentata)':      [1.5,1.7,1.9,1.9,null],
+  'Hancock II (stentata)':            [1.5,1.8,1.9,2.6,2.6],
+  'CE Perimount (pericardica)':       [1.6,1.8,2.1,null,null],
+  'SJM Standard (bileaflet)':         [1.5,1.7,1.8,2.0,2.0],
+  'MCRI On-X (bileaflet)':            [2.2,2.2,2.2,2.2,2.2]
+};
+function modelList(pos){
+  var t = (pos==='mitralica')?EOA_MI:EOA_AO, o=['—'];
+  for(var k in t) if(t.hasOwnProperty(k)) o.push(k);
+  return o;
+}
+var PR_COMMON = reg([
+  {k:'prPos', l:'Posizione', type:'select', opt:['—','aortica','mitralica','tricuspidalica','polmonare']},
+  {k:'prType',l:'Tipo', type:'select', opt:['—','meccanica bileaflet','meccanica monodisco','meccanica a palla','biologica stentata','biologica pericardica','biologica stentless','sutureless','TAVI','homograft','autograft (Ross)']},
+  {k:'prMod', l:'Modello', type:'select', opt:['—']},
+  {k:'prSize',l:'Misura nominale', type:'select', opt:['—','19','21','23','25','27','29','31','33']},
+  {k:'prYear',l:'Anno di impianto', u:''},
+  {k:'prEOAref',l:'EOA di riferimento', u:'cm²', calc:1}
+]);
+var PR_AO = reg([
+  {k:'pav',   l:'V max transprotesica', u:'m/s', r:{uln:2.9, hi:[3.9], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm<3 sev≥4'}},
+  {k:'pamg',  l:'Gradiente medio', u:'mmHg', r:{uln:19, hi:[34], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm<20 sev≥35'}},
+  {k:'paVTI', l:'VTI transprotesico', u:'cm'},
+  {k:'paEOA', l:'EOA (continuità)', u:'cm²', calc:1, r:{lln:1.1, lo:[0.8], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm>1,1 sev<0,8'}},
+  {k:'paiEOA',l:'EOA indicizzata', u:'cm²/m²', calc:1, r:{lln:0.86, lo:[0.65], labs:['PPM moderato','PPM severo'], txt:'>0,85 · 0,85–0,66 · ≤0,65'}},
+  {k:'paDVI', l:'DVI', u:'', calc:1, r:{lln:0.35, lo:[0.25], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm≥0,35 sev<0,25'}},
+  {k:'paAT',  l:'Tempo di accelerazione', u:'ms', r:{uln:80, hi:[100], labs:['borderline','allungato'], txt:'norm<80'}},
+  {k:'paET',  l:'Tempo di eiezione', u:'ms'},
+  {k:'paATET',l:'AT / ET', u:'', calc:1, r:{uln:0.32, hi:[0.37], labs:['borderline','alterato'], txt:'norm<0,32'}},
+  {k:'paProf',l:'Profilo del flusso (CW)', type:'select', opt:['triangolare, picco precoce','intermedio','arrotondato, simmetrico']},
+  {k:'paMob', l:'Mobilità cuspidi/emidischi', type:'select', opt:['normale','ridotta','bloccata','non valutabile']},
+  {k:'paReg', l:'Rigurgito', type:'select', opt:['fisiologico','intraprotesico lieve','intraprotesico moderato','intraprotesico severo','paraprotesico lieve','paraprotesico moderato','paraprotesico severo']},
+  {k:'paRegExt',l:'Estensione circonferenziale (paraprotesico)', u:'%', r:{uln:9, hi:[29], labs:['moderato','severo'], txt:'<10 · 10–29 · ≥30'}}
+]);
+var PR_MI = reg([
+  {k:'pmE',   l:'Onda E protesica', u:'m/s', r:{uln:1.9, hi:[2.5], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm<1,9'}},
+  {k:'pmMG',  l:'Gradiente medio', u:'mmHg', r:{uln:5, hi:[10], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm≤5 sev≥10'}},
+  {k:'pmPHT', l:'Pressure half-time', u:'ms', r:{uln:130, hi:[200], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm<130 sev>200'}},
+  {k:'pmVTI', l:'VTI transprotesico', u:'cm'},
+  {k:'pmEOA', l:'EOA (continuità)', u:'cm²', calc:1, r:{lln:2, lo:[1], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm≥2 sev<1'}},
+  {k:'pmiEOA',l:'EOA indicizzata', u:'cm²/m²', calc:1, r:{lln:1.21, lo:[0.9], labs:['PPM moderato','PPM severo'], txt:'>1,2 · 1,2–0,91 · ≤0,90'}},
+  {k:'pmDVI', l:'DVI (VTI prot / VTI LVOT)', u:'', calc:1, r:{uln:2.2, hi:[2.5], labs:['possibile ostruzione','ostruzione significativa'], txt:'norm<2,2 sev>2,5'}},
+  {k:'pmMob', l:'Mobilità cuspidi/emidischi', type:'select', opt:['normale','ridotta','bloccata','non valutabile']},
+  {k:'pmReg', l:'Rigurgito', type:'select', opt:['fisiologico','intraprotesico lieve','intraprotesico moderato','intraprotesico severo','paraprotesico lieve','paraprotesico moderato','paraprotesico severo']},
+  {k:'pmRegExt',l:'Estensione circonferenziale (paraprotesico)', u:'%', r:{uln:9, hi:[29], labs:['moderato','severo'], txt:'<10 · 10–29 · ≥30'}}
+]);
+var PR_TP = reg([
+  {k:'ptE',  l:'Tricuspide — onda E', u:'m/s', r:{uln:1.9, hi:[], labs:['possibile ostruzione'], txt:'norm<1,9'}},
+  {k:'ptMG', l:'Tricuspide — gradiente medio', u:'mmHg', r:{uln:6, hi:[], labs:['possibile ostruzione'], txt:'norm<6'}},
+  {k:'ptPHT',l:'Tricuspide — PHT', u:'ms', r:{uln:130, hi:[], labs:['possibile ostruzione'], txt:'norm<130'}},
+  {k:'ptDVI',l:'Tricuspide — DVI', u:'', r:{uln:2, hi:[], labs:['possibile ostruzione'], txt:'norm<2'}},
+  {k:'ppV',  l:'Polmonare — V max', u:'m/s', r:{uln:3.2, hi:[], labs:['possibile ostruzione'], txt:'bio <3,2 · homograft <2,5'}},
+  {k:'ppMG', l:'Polmonare — gradiente medio', u:'mmHg', r:{uln:20, hi:[], labs:['possibile ostruzione'], txt:'bio <20 · homograft <15'}},
+  {k:'ppPHT',l:'Polmonare — PHT', u:'ms', r:{uln:230, hi:[], labs:['possibile ostruzione'], txt:'norm<230'}}
+]);
+var PR_NOTE = reg([
+  {k:'prMassa',l:'Massa patologica sulla protesi', type:'select', opt:['assente','sospetto trombo (mobile, ecodensità bassa)','sospetto panno (fisso, ecodenso)','vegetazione','non valutabile']},
+  {k:'prRock',l:'Rocking del ring', type:'select', opt:['assente','presente (>15°)']}
+]);
+
+/* ── UTIC · shock ───────────────────────────────────────────────────────── */
+var UT_CLIN = reg([
+  {k:'pam',  l:'Pressione arteriosa media', u:'mmHg', calc:1, r:{lln:65, lo:[55,45], txt:'≥ 65'}},
+  {k:'lact', l:'Lattato', u:'mmol/L', r:{uln:2, hi:[4], labs:['aumentato','marcatamente aumentato'], txt:'< 2'}},
+  {k:'supp', l:'Supporto in atto', type:'select', opt:['nessuno','1 farmaco vasoattivo','≥2 farmaci vasoattivi','supporto meccanico (IABP / Impella / ECMO)','arresto o shock refrattario']},
+  {k:'ipoperf', l:'Segni clinici di ipoperfusione', s:'marezzature, oliguria, alterazione del sensorio', type:'select', opt:['assenti','presenti']}
+]);
+var UT_POWER = reg([
+  {k:'cpo', l:'Cardiac power output (CPO)', u:'W', calc:1, r:{lln:0.6, lo:[0.45,0.3], txt:'≥ 0,6'}},
+  {k:'cpi', l:'CPO indicizzato', u:'W/m²', calc:1, r:{lln:0.53, lo:[0.4,0.3], txt:'≥ 0,53'}},
+  {k:'ciU', l:'Indice cardiaco in uso', u:'L/min/m²', calc:1, r:{lln:2.2, lo:[1.8,1.5], txt:'≥ 2,2'}},
+  {k:'svr', l:'Resistenze vascolari sistemiche', u:'dyn·s·cm⁻⁵', calc:1, r:{lln:800, uln:1200, txt:'800–1200'}},
+  {k:'svri',l:'SVR indicizzate', u:'dyn·s·cm⁻⁵·m²', calc:1, r:{lln:1970, uln:2390, txt:'1970–2390'}}
+]);
+var UT_RIGHT = reg([
+  {k:'tapsePaps',l:'TAPSE / PAPs', u:'mm/mmHg', calc:1, r:{lln:0.55, lo:[0.31], labs:['borderline','uncoupling'], txt:'≥0,55 · <0,31'}},
+  {k:'papi', l:'PAPi', u:'', calc:1, r:{lln:1.85, lo:[0.9], labs:['borderline','critico'], txt:'≥1,85 · <0,9'}},
+  {k:'rvlv', l:'Rapporto VD/VS (4C)', u:'', r:{uln:0.9, hi:[1], labs:['aumentato','severo'], txt:'≤ 0,9'}}
+]);
+var UT_INV = reg([
+  {k:'pvc',   l:'PVC misurata', u:'mmHg', r:{lln:2, uln:8, txt:'2–8'}},
+  {k:'papsInv',l:'PAPs invasiva', u:'mmHg'},
+  {k:'papdInv',l:'PAPd invasiva', u:'mmHg'},
+  {k:'pcwp',  l:'PCWP', u:'mmHg', r:{uln:15, hi:[22], labs:['aumentata','marcatamente aumentata'], txt:'≤ 15'}},
+  {k:'coInv', l:'CO da termodiluizione', u:'L/min'}
+]);
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CALCOLI DERIVATI
+   ═══════════════════════════════════════════════════════════════════════════ */
+function div(a,b){ return (a===null||b===null||b===0)?null:a/b; }
+function pisaEROA(rmm, va, vmaxms){          /* EROA in mm² */
+  if(rmm===null||va===null||vmaxms===null||vmaxms===0) return null;
+  var r = rmm/10;                             /* cm */
+  var eroaCm2 = 2*Math.PI*r*r*va/(vmaxms*100);
+  return eroaCm2*100;
+}
+function pisaRVol(eroaMm2, vti){ return (eroaMm2===null||vti===null)?null:(eroaMm2/100)*vti; }
+
+function recalc(){
+  D = {};
+  var w=num(S.peso), h=num(S.alt), fc=num(S.fc);
+  var bsa = (w&&h)? Math.sqrt(w*h/3600) : null;
+  D.bsa = bsa;
+
+  /* ── ventricolo sinistro ── */
+  var ivs=n('IVSd'), pw=n('LVPWd'), did=n('LVIDd'), dis=n('LVIDs');
+  D.LVIDdi = div(did,bsa);
+  D.EDVi = div(n('EDV'),bsa);  D.ESVi = div(n('ESV'),bsa);
+  if(ivs!==null&&pw!==null&&did!==null){
+    D.mass = 0.8*1.04*(Math.pow(ivs+did+pw,3)-Math.pow(did,3))/1000 + 0.6;
+    D.massi = div(D.mass,bsa);
+  }
+  if(pw!==null&&did!==null&&did!==0) D.rwt = 2*pw/did;
+  var edv=n('EDV'), esv=n('ESV');
+  if(edv!==null&&esv!==null&&edv!==0){ D.ef=(edv-esv)/edv*100; D.svVol=edv-esv; }
+  if(did!==null&&dis!==null&&did!==0) D.sf=(did-dis)/did*100;
+  var ss=n('sSep'), sl=n('sLat');
+  if(ss!==null&&sl!==null) D.sAvg=(ss+sl)/2;
+  D.efUse = (D.ef!==null&&D.ef!==undefined)?D.ef:n('efm');
+
+  /* ── ventricolo destro ── */
+  var eda=n('rvEDA'), esa=n('rvESA');
+  if(eda!==null&&esa!==null&&eda!==0) D.fac=(eda-esa)/eda*100;
+
+  /* ── vena cava / pressioni destre ── */
+  var vmax=n('vciMax'), vmin=n('vciMin');
+  if(vmax!==null&&vmin!==null&&vmax!==0) D.vciColl=(vmax-vmin)/vmax*100;
+  var rap=null;
+  if(vmax!==null&&D.vciColl!==null&&D.vciColl!==undefined){
+    if(vmax<=21 && D.vciColl>50) rap=3;
+    else if(vmax>21 && D.vciColl<50) rap=15;
+    else rap=8;
+  } else if(vmax!==null){ rap = (vmax<=21)?3:15; }
+  D.rap = rap;
+  var tr=n('trVmax');
+  if(tr!==null) D.trGrad = 4*tr*tr;
+  if(D.trGrad!==null&&D.trGrad!==undefined&&rap!==null) D.paps = D.trGrad + rap;
+  var pe=n('prEnd');
+  if(pe!==null&&rap!==null) D.papd = 4*pe*pe + rap;
+  var rvti=n('rvotVTI');
+  if(tr!==null&&rvti!==null&&rvti!==0) D.pvr = tr/rvti*10 + 0.16;
+
+  /* ── atri / aorta ── */
+  D.lavi = div(n('lav'),bsa);   D.ravi = div(n('rav'),bsa);
+  D.ladAo = div(n('lad'),n('aoRoot2'));
+  D.aoSoVi = div(n('aoSoV'),bsa);
+  D.tvAnni = div(n('tvAnn'),bsa);
+
+  /* ── emodinamica ── */
+  var ld=n('lvotD'), lv=n('lvotVTI');
+  if(ld!==null) D.lvotArea = 0.785*Math.pow(ld/10,2);
+  if(D.lvotArea!==null&&D.lvotArea!==undefined&&lv!==null){
+    D.sv = D.lvotArea*lv;
+    D.svi = div(D.sv,bsa);
+    if(fc!==null){ D.co = D.sv*fc/1000; D.ci = div(D.co,bsa); }
+  }
+
+  /* ── diastole ── */
+  var E=n('E'), A=n('A'), es=n('eSep'), el=n('eLat');
+  D.EA = div(E,A);
+  if(es!==null&&el!==null) D.eAvg=(es+el)/2;
+  D.EeSep = div(E,es); D.EeLat = div(E,el); D.EeAvg = div(E,D.eAvg);
+  D.pvSD = div(n('pvS'),n('pvD'));
+
+  /* ── valvola aortica ── */
+  var avti=n('asVTI');
+  if(D.sv!==null&&D.sv!==undefined&&avti!==null&&avti!==0){ D.ava = D.sv/avti; D.avai = div(D.ava,bsa); }
+  if(lv!==null&&avti!==null&&avti!==0) D.dvi = lv/avti;
+  D.arERO = pisaEROA(n('arPISAr'), n('arVa'), n('arVmax'));
+  D.arRV  = pisaRVol(D.arERO, n('arVTI'));
+
+  /* ── valvola mitrale ── */
+  var mp=n('msPHT'); if(mp!==null&&mp!==0) D.msMVApht = 220/mp;
+  D.mrERO = pisaEROA(n('mrPISAr'), n('mrVa'), n('mrVmax'));
+  D.mrRV  = pisaRVol(D.mrERO, n('mrVTI'));
+
+  /* ── tricuspide ── */
+  D.trERO = pisaEROA(n('trPISAr'), n('trVa'), n('trVmax'));
+  D.trRV  = pisaRVol(D.trERO, n('trVTI'));
+
+  /* ── protesi ── */
+  var pos=g('prPos'), mod=g('prMod'), sz=num(g('prSize'));
+  if(pos&&mod&&mod!=='—'&&sz){
+    var tab=(pos==='mitralica')?EOA_MI:EOA_AO, szl=(pos==='mitralica')?EOA_MI_SZ:EOA_AO_SZ;
+    var idx=szl.indexOf(sz);
+    if(tab[mod]&&idx>=0&&tab[mod][idx]!==null&&tab[mod][idx]!==undefined) D.prEOAref=tab[mod][idx];
+  }
+  var pvti=n('paVTI');
+  if(D.sv!==null&&D.sv!==undefined&&pvti!==null&&pvti!==0){ D.paEOA=D.sv/pvti; D.paiEOA=div(D.paEOA,bsa); }
+  if(lv!==null&&pvti!==null&&pvti!==0) D.paDVI=lv/pvti;
+  var at=n('paAT'), et=n('paET'); if(at!==null&&et!==null&&et!==0) D.paATET=at/et;
+  var mvti=n('pmVTI');
+  if(D.sv!==null&&D.sv!==undefined&&mvti!==null&&mvti!==0){ D.pmEOA=D.sv/mvti; D.pmiEOA=div(D.pmEOA,bsa); }
+  if(lv!==null&&mvti!==null&&lv!==0) D.pmDVI=mvti/lv;
+
+  /* ── UTIC · shock ── */
+  var pas=num(S.pas), pad=num(S.pad);
+  if(pas!==null&&pad!==null) D.pam=(pas+2*pad)/3;
+  var coU = (n('coInv')!==null)?n('coInv'):(D.co!==undefined?D.co:null);
+  D.coU = coU;
+  D.ciU = div(coU,bsa);
+  var rapU = (n('pvc')!==null)?n('pvc'):D.rap;
+  D.rapU = rapU;
+  if(D.pam!==undefined&&D.pam!==null&&coU!==null&&coU!==0){
+    D.cpo = D.pam*coU/451;
+    D.cpi = div(D.cpo,bsa);
+    if(rapU!==null&&rapU!==undefined){ D.svr = 80*(D.pam-rapU)/coU; D.svri = (bsa?D.svr*bsa:null); }
+  }
+  var papsU = (n('papsInv')!==null)?n('papsInv'):(D.paps!==undefined?D.paps:null);
+  var papdU = (n('papdInv')!==null)?n('papdInv'):(D.papd!==undefined?D.papd:null);
+  D.papsU=papsU; D.papdU=papdU;
+  if(n('tapse')!==null&&papsU!==null&&papsU!==0) D.tapsePaps = n('tapse')/papsU;
+  if(papsU!==null&&papdU!==null&&rapU!==null&&rapU!==0) D.papi = (papsU-papdU)/rapU;
+
+  /* ── WMSI ── */
+  var sum=0,cnt=0,touched=false;
+  for(var i=1;i<=17;i++){ if(SEG[i]&&SEG[i]>1) touched=true; }
+  for(var i2=1;i2<=16;i2++){ var sc=(SEG[i2]&&SEG[i2]>=1)?SEG[i2]:1; sum+=sc; if(sc>1) cnt++; }
+  D.wmsi = touched? sum/16 : null;
+  D.wmsiN = cnt;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   VERDETTI
+   ═══════════════════════════════════════════════════════════════════════════ */
+function geoPattern(){
+  var m=n('massi'), r=n('rwt');
+  if(m===null||r===null) return null;
+  var uln = (S.sex==='M')?115:95, hM=m>uln, hR=r>0.42;
+  if(!hM&&!hR) return {p:'geometria normale', cls:'ok'};
+  if(!hM&&hR)  return {p:'rimodellamento concentrico', cls:'warn'};
+  if(hM&&hR)   return {p:'ipertrofia concentrica', cls:'warn'};
+  return {p:'ipertrofia eccentrica', cls:'warn'};
+}
+function efClass(){
+  var e=D.efUse;
+  if(e===null||e===undefined) return null;
+  var lln=(S.sex==='M')?52:54, uln=(S.sex==='M')?72:74;
+  if(e>uln) return {l:'ipercinetica', k:'iper'};
+  if(e>=lln) return {l:'conservata', k:'norm'};
+  if(e>=41) return {l:'lievemente ridotta', k:'lieve'};
+  if(e>=30) return {l:'moderatamente ridotta', k:'mod'};
+  return {l:'severamente ridotta', k:'sev'};
+}
+
+/* ── diastole: algoritmo ASE 2025 ───────────────────────────────────────── */
+function diastole(){
+  var es=n('eSep'), el=n('eLat'), ea=D.eAvg, EA=D.EA, lavi=n('lavi')||D.lavi,
+      lars=n('lars'), sd=D.pvSD, ivrt=n('IVRT'), tr=n('trVmax'), paps=D.paps,
+      ees=D.EeSep, eel=D.EeLat, eea=D.EeAvg, ritmo=g('ritmo');
+  var R = { ok:false, txt:'', grade:null, lap:null, notes:[], detail:[] };
+
+  var v1 = (es!==null&&es<=6) || (el!==null&&el<=7) || (ea!==null&&ea<=6.5);
+  var v1known = (es!==null||el!==null||ea!==null);
+  var v2 = (ees!==null&&ees>=15) || (eel!==null&&eel>=13) || (eea!==null&&eea>=14);
+  var v2known = (ees!==null||eel!==null||eea!==null);
+  var v3 = (tr!==null&&tr>=2.8) || (paps!==null&&paps>=35);
+  var v3known = (tr!==null||paps!==null);
+
+  if(!(v1known&&v2known&&v3known)){
+    R.txt = 'Dati insufficienti per l\u2019algoritmo';
+    R.notes.push('Servono almeno: e\u2019 (settale e/o laterale), E/e\u2019 e V max del rigurgito tricuspidale.');
+    return R;
+  }
+  R.ok = true;
+  R.detail.push("e' ridotta: "+(v1?'sì':'no')+(ea!==null?" (media "+nff(ea,1)+" cm/s)":''));
+  R.detail.push("E/e' aumentata: "+(v2?'sì':'no')+(eea!==null?" (media "+nff(eea,1)+")":''));
+  R.detail.push('TR/PAPs aumentata: '+(v3?'sì':'no')+(tr!==null?' (TR '+nff(tr,1)+' m/s)':''));
+
+  var cnt = (v1?1:0)+(v2?1:0)+(v3?1:0);
+  var supp = [], suppKnown=false;
+  if(sd!==null){ suppKnown=true; if(sd<=0.67) supp.push('S/D ≤0,67'); }
+  if(lars!==null){ suppKnown=true; if(lars<=18) supp.push('LARS ≤18%'); }
+  if(lavi!==null){ suppKnown=true; if(lavi>34) supp.push('LAVi >34 ml/m²'); }
+  if(!supp.length && ivrt!==null){ suppKnown=true; if(ivrt<=70) supp.push('IVRT ≤70 ms'); }
+
+  var lapUp = null;
+  if(cnt===0) lapUp=false;
+  else if(cnt===3) lapUp=true;
+  else if(cnt===1 && v1){
+    if(EA!==null && EA<=0.8) lapUp=false;
+    else if(EA!==null){ lapUp = supp.length>0 ? true : (suppKnown?false:null); }
+    else lapUp = null;
+  } else {
+    lapUp = supp.length>0 ? true : (suppKnown?false:null);
+  }
+
+  if(lapUp===null){
+    R.txt='Pressioni di riempimento indeterminate';
+    R.notes.push('Aggiungi almeno uno tra: rapporto S/D delle vene polmonari, LARS, LAVi o IVRT (parametri del box supplementare dell\u2019algoritmo).');
+    return R;
+  }
+  if(lapUp===false){
+    R.lap='normale';
+    if(cnt===0){ R.grade=0; R.txt='Funzione diastolica normale, pressioni di riempimento normali'; }
+    else if(v1){ R.grade=1; R.txt='Disfunzione diastolica di grado 1 (alterato rilasciamento), pressioni di riempimento normali'; }
+    else { R.grade=1; R.txt='Pressioni di riempimento normali; alterazioni isolate — grado indeterminato'; }
+  } else {
+    R.lap='aumentata';
+    if(EA===null){ R.grade=2; R.txt='Disfunzione diastolica di grado 2–3 con pressioni di riempimento aumentate (E/A non disponibile)'; }
+    else if(EA<2){ R.grade=2; R.txt='Disfunzione diastolica di grado 2, pressioni di riempimento moderatamente aumentate'; }
+    else { R.grade=3; R.txt='Disfunzione diastolica di grado 3, pressioni di riempimento marcatamente aumentate'; }
+    if(supp.length) R.detail.push('Criteri supplementari positivi: '+supp.join(', '));
+  }
+  if(lars!==null&&lars>35&&R.grade>0) R.notes.push('LARS >35% deporrebbe contro una disfunzione diastolica: rivedi la coerenza dei dati.');
+  if(lars!==null&&lars<=18&&R.grade<3) R.notes.push('LARS ≤18% è compatibile con disfunzione di grado 3.');
+  if(ritmo==='fibrillazione atriale') R.notes.push('In fibrillazione atriale l\u2019algoritmo standard non è applicabile: media ≥5 cicli e usa E/e\u2019 settale ≥11, DT E ≤160 ms, IVRT ≤65 ms, Ar-A e velocità di picco della vena polmonare.');
+  if(ritmo==='pacing/BBSn') R.notes.push('Con BBSn / pacing ventricolare destro l\u2019e\u2019 settale è inaffidabile: privilegia e\u2019 ed E/e\u2019 laterale.');
+  if(v3 && n('paat')!==null && n('paat')<100) R.notes.push('Prima di attribuire la TR elevata alle pressioni di riempimento, escludi una ipertensione polmonare precapillare (PAAT '+nff(n('paat'),0)+' ms).');
+  return R;
+}
+
+/* ── step 1: c'è disfunzione diastolica? (FE conservata) ────────────────── */
+function diastoleStep1(){
+  var es=n('eSep'), el=n('eLat'), ea=D.eAvg, eea=D.EeAvg, lars=n('lars'),
+      EA=D.EA, lavi=n('lavi')||D.lavi;
+  var cs=ageCut(0,7,6,6), cl=ageCut(0,10,8,7), ca=ageCut(0,9,7,6.5);
+  var red = (es!==null&&es<=cs)||(el!==null&&el<=cl)||(ea!==null&&ea<=ca);
+  var m=0, tot=0;
+  if(eea!==null){ tot++; if(eea>14) m++; }
+  if(lars!==null){ tot++; if(lars<=18) m++; }
+  if(EA!==null){ tot++; if(EA<=0.8) m++; }
+  if(lavi!==null){ tot++; if(lavi>34) m++; }
+  if(!tot && (es===null&&el===null&&ea===null)) return null;
+  var dd = red ? (m>=1) : (m>=2);
+  return { red:red, markers:m, tot:tot, dd:dd };
+}
+
+/* ── valvole native ─────────────────────────────────────────────────────── */
+function severityWord(x){ return ['assente','lieve','moderata','severa'][x]||'—'; }
+function asVerdict(){
+  var v=n('asVmax'), mg=n('asMG'), ava=D.ava, avai=D.avai, dvi=D.dvi, svi=D.svi, ef=D.efUse;
+  if(v===null&&mg===null&&ava===null) return null;
+  var lvl=0, why=[];
+  if(v!==null){ if(v>=4){lvl=Math.max(lvl,3);why.push('V max '+nff(v,2)+' m/s');} else if(v>=3){lvl=Math.max(lvl,2);why.push('V max '+nff(v,2)+' m/s');} else if(v>2.5){lvl=Math.max(lvl,1);why.push('V max '+nff(v,2)+' m/s');} }
+  if(mg!==null){ if(mg>=40){lvl=Math.max(lvl,3);why.push('grad. medio '+nff(mg,0)+' mmHg');} else if(mg>=20){lvl=Math.max(lvl,2);why.push('grad. medio '+nff(mg,0)+' mmHg');} else if(mg>=10){lvl=Math.max(lvl,1);why.push('grad. medio '+nff(mg,0)+' mmHg');} }
+  if(ava!==null){ if(ava<1){lvl=Math.max(lvl,3);why.push('AVA '+nff(ava,2)+' cm²');} else if(ava<=1.5){lvl=Math.max(lvl,2);why.push('AVA '+nff(ava,2)+' cm²');} }
+  var out={ lvl:lvl, txt:'', why:why, notes:[] };
+  out.txt = lvl===0 ? (v!==null&&v>2.0?'Sclerosi valvolare aortica senza stenosi significativa':'Assenza di stenosi aortica')
+                    : 'Stenosi aortica '+severityWord(lvl);
+  /* discordanza basso flusso / basso gradiente */
+  if(ava!==null&&ava<1&&mg!==null&&mg<40){
+    if(svi!==null&&svi<35){
+      if(ef!==null&&ef<50) out.notes.push('Quadro di stenosi aortica a basso flusso–basso gradiente classica (SVi '+nff(svi,0)+' ml/m², FE '+nff(ef,0)+'%): considera eco-stress con dobutamina a basse dosi e calcium score TC.');
+      else out.notes.push('Quadro di stenosi aortica a basso flusso–basso gradiente paradossa (SVi '+nff(svi,0)+' ml/m², FE conservata): verifica misure di LVOT, considera calcium score TC.');
+    } else if(svi!==null){
+      out.notes.push('AVA <1 cm² con gradiente <40 mmHg e flusso normale (SVi '+nff(svi,0)+' ml/m²): stenosi verosimilmente moderata — ricontrolla diametro e VTI del LVOT.');
+    }
+  }
+  if(avai!==null&&avai<0.6) out.notes.push('AVA indicizzata '+nff(avai,2)+' cm²/m² (<0,6): criterio di severità.');
+  if(dvi!==null&&dvi<0.25) out.notes.push('DVI '+nff(dvi,2)+' (<0,25): criterio di severità.');
+  return out;
+}
+function arVerdict(){
+  var vc=n('arVC'), ero=D.arERO, rv=D.arRV, pht=n('arPHT'), rev=n('arRev'), jet=n('arJet'), rf=n('arRF');
+  if(vc===null&&ero===null&&rv===null&&pht===null&&jet===null) return null;
+  var lvl=0, why=[];
+  function up(x,t){ if(x>lvl) lvl=x; why.push(t); }
+  if(vc!==null){ if(vc>=6) up(3,'VC '+nff(vc,1)+' mm'); else if(vc>=3) up(2,'VC '+nff(vc,1)+' mm'); else up(1,'VC '+nff(vc,1)+' mm'); }
+  if(ero!==null){ if(ero>=30) up(3,'EROA '+nff(ero,0)+' mm²'); else if(ero>=10) up(2,'EROA '+nff(ero,0)+' mm²'); else up(1,'EROA '+nff(ero,0)+' mm²'); }
+  if(rv!==null){ if(rv>=60) up(3,'RVol '+nff(rv,0)+' ml'); else if(rv>=30) up(2,'RVol '+nff(rv,0)+' ml'); else up(1,'RVol '+nff(rv,0)+' ml'); }
+  if(rf!==null){ if(rf>50) up(3,'RF '+nff(rf,0)+'%'); else if(rf>=30) up(2,'RF '+nff(rf,0)+'%'); }
+  if(jet!==null&&jet>65) up(3,'jet/LVOT '+nff(jet,0)+'%');
+  if(pht!==null){ if(pht<200) up(3,'PHT '+nff(pht,0)+' ms'); else if(pht<=500) up(2,'PHT '+nff(pht,0)+' ms'); }
+  if(rev!==null&&rev>20) up(3,'reversal telediastolico '+nff(rev,0)+' cm/s');
+  return { lvl:lvl, txt: lvl===0?'Assenza di insufficienza aortica':'Insufficienza aortica '+severityWord(lvl), why:why, notes:[] };
+}
+function mrVerdict(){
+  var vc=n('mrVC'), ero=D.mrERO, rv=D.mrRV, rf=n('mrRF'), pv=g('mrPV'), E=n('mrE'), tvi=n('mrTVI');
+  var sec = (g('mvMecc')||'').indexOf('secondario')===0;
+  if(vc===null&&ero===null&&rv===null&&!pv) return null;
+  var lvl=0, why=[];
+  function up(x,t){ if(x>lvl) lvl=x; why.push(t); }
+  var eroSev = sec?20:40, eroMod = sec?10:20, rvSev = sec?30:60, rvMod = sec?15:30;
+  if(vc!==null){ if(vc>=7) up(3,'VC '+nff(vc,1)+' mm'); else if(vc>=3) up(2,'VC '+nff(vc,1)+' mm'); else up(1,'VC '+nff(vc,1)+' mm'); }
+  if(ero!==null){ if(ero>=eroSev) up(3,'EROA '+nff(ero,0)+' mm²'); else if(ero>=eroMod) up(2,'EROA '+nff(ero,0)+' mm²'); else up(1,'EROA '+nff(ero,0)+' mm²'); }
+  if(rv!==null){ if(rv>=rvSev) up(3,'RVol '+nff(rv,0)+' ml'); else if(rv>=rvMod) up(2,'RVol '+nff(rv,0)+' ml'); else up(1,'RVol '+nff(rv,0)+' ml'); }
+  if(rf!==null){ if(rf>50) up(3,'RF '+nff(rf,0)+'%'); else if(rf>=30) up(2,'RF '+nff(rf,0)+'%'); }
+  if(pv==='inversione sistolica') up(3,'inversione sistolica del flusso venoso polmonare');
+  if(E!==null&&E>1.5) why.push('onda E '+nff(E,1)+' m/s');
+  if(tvi!==null&&tvi>1.4) why.push('VTI mit/Ao '+nff(tvi,1));
+  var o = { lvl:lvl, txt: lvl===0?'Assenza di insufficienza mitralica':'Insufficienza mitralica '+severityWord(lvl), why:why, notes:[] };
+  if(sec) o.notes.push('Rigurgito secondario: soglie di severità EROA ≥20 mm² e RVol ≥30 ml.');
+  return o;
+}
+function msVerdict(){
+  var a=n('msMVA'), ap=D.msMVApht, mg=n('msMG');
+  var area = (a!==null)?a:(ap!==null?ap:null);
+  if(area===null&&mg===null) return null;
+  var lvl=0, why=[];
+  if(area!==null){ if(area<1) lvl=3; else if(area<=1.5) lvl=2; else if(area<2) lvl=1; why.push('area '+nff(area,2)+' cm²'+(a===null?' (da PHT)':'')); }
+  if(mg!==null){ if(mg>10) lvl=Math.max(lvl,3); else if(mg>=5) lvl=Math.max(lvl,2); why.push('grad. medio '+nff(mg,0)+' mmHg'); }
+  return { lvl:lvl, txt: lvl===0?'Assenza di stenosi mitralica':'Stenosi mitralica '+severityWord(lvl), why:why, notes:[] };
+}
+function trVerdict(){
+  var vc=n('trVC'), pisa=n('trPISAr'), ero=D.trERO, rv=D.trRV, hep=g('trHep');
+  if(vc===null&&pisa===null&&ero===null&&!hep) return null;
+  var lvl=0, why=[];
+  function up(x,t){ if(x>lvl) lvl=x; why.push(t); }
+  if(vc!==null){ if(vc>7) up(3,'VC '+nff(vc,1)+' mm'); else up(2,'VC '+nff(vc,1)+' mm'); }
+  if(pisa!==null){ if(pisa>9) up(3,'raggio PISA '+nff(pisa,0)+' mm'); else if(pisa>=6) up(2,'raggio PISA '+nff(pisa,0)+' mm'); else up(1,'raggio PISA '+nff(pisa,0)+' mm'); }
+  if(ero!==null){ if(ero>=40) up(3,'EROA '+nff(ero,0)+' mm²'); else up(2,'EROA '+nff(ero,0)+' mm²'); }
+  if(rv!==null){ if(rv>=45) up(3,'RVol '+nff(rv,0)+' ml'); }
+  if(hep==='inversione sistolica') up(3,'inversione sistolica del flusso venoso epatico');
+  return { lvl:lvl, txt: lvl===0?'Assenza di insufficienza tricuspidalica':'Insufficienza tricuspidalica '+severityWord(lvl), why:why, notes:[] };
+}
+function psVerdict(){
+  var v=n('psVmax'), jet=n('prJet'), pht=n('prPHT');
+  var o=null;
+  if(v!==null){
+    var lvl = v>4?3:(v>=3?2:(v>2?1:0));
+    o = { lvl:lvl, txt: lvl===0?'Assenza di stenosi polmonare':'Stenosi polmonare '+severityWord(lvl), why:['V max '+nff(v,1)+' m/s, gradiente di picco '+nff(4*v*v,0)+' mmHg'], notes:[] };
+  }
+  var pr=null;
+  if(jet!==null||pht!==null){
+    var l2=1;
+    if((jet!==null&&jet>50)||(pht!==null&&pht<100)) l2=3;
+    else if(jet!==null&&jet>25) l2=2;
+    pr = { lvl:l2, txt:'Insufficienza polmonare '+severityWord(l2), why:[], notes:[] };
+    if(jet!==null) pr.why.push('jet/RVOT '+nff(jet,0)+'%');
+    if(pht!==null) pr.why.push('PHT '+nff(pht,0)+' ms');
+  }
+  return { ps:o, pr:pr };
+}
+
+/* ── protesi: gradiente elevato → ostruzione vs mismatch ────────────────── */
+function prosthVerdict(){
+  var pos=g('prPos');
+  if(!pos||pos==='—') return null;
+  var ref=D.prEOAref, bmi=null, w=num(S.peso), h=num(S.alt);
+  if(w&&h) bmi = w/Math.pow(h/100,2);
+  var mob=g(pos==='mitralica'?'pmMob':'paMob');
+  var R={ txt:'', cls:'box-accent', lines:[], notes:[] };
+
+  if(pos==='aortica'){
+    var v=n('pav'), mg=n('pamg'), eoa=D.paEOA, ieoa=D.paiEOA, dvi=D.paDVI, atet=D.paATET;
+    if(v===null&&mg===null) return null;
+    var high = (v!==null&&v>=3)||(mg!==null&&mg>=20);
+    if(!high){ R.txt='Gradiente transprotesico nei limiti'; R.cls='box-ok'; }
+    else {
+      R.lines.push('Gradiente elevato: V max '+(v!==null?nff(v,2)+' m/s':'—')+', gradiente medio '+(mg!==null?nff(mg,0)+' mmHg':'—')+'.');
+      var lowEOA = (eoa!==null&&ref!==undefined&&ref!==null&&(ref-eoa)>0.25);
+      var obstr = (dvi!==null&&dvi<0.25)||(atet!==null&&atet>0.37)||(mob==='ridotta')||(mob==='bloccata');
+      var ppmLim = (bmi!==null&&bmi>=30)?0.70:0.85;
+      var ppmSev = (bmi!==null&&bmi>=30)?0.55:0.65;
+      if(lowEOA && obstr){ R.txt='Quadro suggestivo di ostruzione protesica acquisita'; R.cls='box-red'; }
+      else if(ieoa!==null && ieoa<=ppmLim && !lowEOA){
+        R.txt = 'Mismatch protesi–paziente '+(ieoa<=ppmSev?'severo':'moderato')+' (EOA indicizzata '+nff(ieoa,2)+' cm²/m²)';
+        R.cls = ieoa<=ppmSev?'box-warn':'box-accent';
+      }
+      else if(lowEOA){ R.txt='EOA inferiore al valore atteso per il modello: possibile ostruzione — completa con cinefluoroscopia o TC'; R.cls='box-warn'; }
+      else { R.txt='Gradiente elevato con EOA e DVI conservati: valuta stato di alto flusso, errore tecnico o gradiente localizzato del foro centrale (protesi bileaflet)'; R.cls='box-warn'; }
+      if(ref!==undefined&&ref!==null) R.lines.push('EOA misurata '+(eoa!==null?nff(eoa,2):'—')+' cm² vs riferimento del modello '+nff(ref,2)+' cm².');
+      if(ieoa!==null) R.lines.push('EOA indicizzata '+nff(ieoa,2)+' cm²/m² — soglie PPM'+(bmi!==null&&bmi>=30?' (BMI ≥30)':'')+': moderato ≤'+nff(ppmLim,2)+', severo ≤'+nff(ppmSev,2)+'.');
+      if(dvi!==null) R.lines.push('DVI '+nff(dvi,2)+(dvi<0.25?' (<0,25: ostruzione)':(dvi<0.35?' (0,25–0,34: dubbio)':' (normale)')));
+      if(atet!==null) R.lines.push('AT/ET '+nff(atet,2)+(atet>0.37?' (>0,37: ostruzione)':' (normale)'));
+    }
+    if(D.paiEOA!==null&&D.paiEOA!==undefined&&!high&&D.paiEOA<=0.65) R.notes.push('EOA indicizzata bassa con gradiente normale: possibile basso flusso, verifica SVi.');
+  }
+  else if(pos==='mitralica'){
+    var E=n('pmE'), m2=n('pmMG'), pht=n('pmPHT'), eoa2=D.pmEOA, ieoa2=D.pmiEOA, dvi2=D.pmDVI;
+    if(E===null&&m2===null) return null;
+    var high2=(E!==null&&E>=1.9)||(m2!==null&&m2>=6);
+    if(!high2){ R.txt='Gradiente transprotesico nei limiti'; R.cls='box-ok'; }
+    else {
+      R.lines.push('Gradiente elevato: onda E '+(E!==null?nff(E,1)+' m/s':'—')+', gradiente medio '+(m2!==null?nff(m2,0)+' mmHg':'—')+'.');
+      var lowEOA2=(eoa2!==null&&ref!==undefined&&ref!==null&&(ref-eoa2)>0.25);
+      var obstr2=(dvi2!==null&&dvi2>2.2)&&(pht!==null&&pht>=130);
+      var lim2=(bmi!==null&&bmi>=30)?1.0:1.2, sev2=(bmi!==null&&bmi>=30)?0.75:0.90;
+      if(lowEOA2&&(obstr2||mob==='ridotta'||mob==='bloccata')){ R.txt='Quadro suggestivo di ostruzione protesica acquisita'; R.cls='box-red'; }
+      else if(ieoa2!==null&&ieoa2<=lim2&&!lowEOA2){ R.txt='Mismatch protesi–paziente '+(ieoa2<=sev2?'severo':'moderato')+' (EOA indicizzata '+nff(ieoa2,2)+' cm²/m²)'; R.cls=(ieoa2<=sev2?'box-warn':'box-accent'); }
+      else if(pht!==null&&pht<130){ R.txt='Gradiente elevato con PHT <130 ms: verosimile alto flusso transprotesico (rigurgito occulto, anemia, tachicardia) più che ostruzione'; R.cls='box-warn'; }
+      else { R.txt='Gradiente elevato: completa con TEE, cinefluoroscopia o TC per distinguere trombo, panno e mismatch'; R.cls='box-warn'; }
+      if(ref!==undefined&&ref!==null) R.lines.push('EOA misurata '+(eoa2!==null?nff(eoa2,2):'—')+' cm² vs riferimento '+nff(ref,2)+' cm².');
+      if(dvi2!==null) R.lines.push('DVI '+nff(dvi2,2)+(dvi2>2.5?' (>2,5: ostruzione)':(dvi2>2.2?' (2,2–2,5: dubbio)':' (normale)')));
+      if(pht!==null) R.lines.push('PHT '+nff(pht,0)+' ms'+(pht>200?' (>200: stenosi significativa)':''));
+    }
+  }
+  else if(pos==='tricuspidalica'){
+    var e3=n('ptE'), g3=n('ptMG'), p3=n('ptPHT'), d3=n('ptDVI');
+    if(e3===null&&g3===null) return null;
+    var ab=(e3!==null&&e3>=1.9)||(g3!==null&&g3>=6)||(p3!==null&&p3>=130)||(d3!==null&&d3>=2);
+    R.txt = ab?'Possibile ostruzione della protesi tricuspidalica':'Protesi tricuspidalica normofunzionante';
+    R.cls = ab?'box-warn':'box-ok';
+  }
+  else if(pos==='polmonare'){
+    var v4=n('ppV'), g4=n('ppMG'), p4=n('ppPHT');
+    if(v4===null&&g4===null) return null;
+    var ab4=(v4!==null&&v4>=3.2)||(g4!==null&&g4>=20)||(p4!==null&&p4>=230);
+    R.txt = ab4?'Possibile ostruzione della protesi polmonare':'Protesi polmonare normofunzionante';
+    R.cls = ab4?'box-warn':'box-ok';
+  }
+  var massa=g('prMassa');
+  if(massa&&massa.indexOf('trombo')>=0) R.notes.push('Trombo: tipicamente mobile, globulare, ecodensità simile al miocardio, correlato a INR subterapeutico; alla TC attenuazione <200 HU.');
+  if(massa&&massa.indexOf('panno')>=0) R.notes.push('Panno: fisso, piccolo, molto ecodenso, di regola >12 mesi dall\u2019impianto; alla TC attenuazione >200 HU.');
+  if(g('prRock')==='presente (>15°)') R.notes.push('Rocking del ring >15°: deiscenza estesa (in sede aortica implica ~40% della circonferenza) — rigurgito paraprotesico severo.');
+  return R;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   UTIC · pattern di shock, quadrante e stadio SCAI
+   ═══════════════════════════════════════════════════════════════════════════ */
+function shockAssess(){
+  var pam=D.pam, ci=D.ciU, cpo=D.cpo, svri=D.svri, rap=D.rapU, pcwp=n('pcwp'),
+      lact=n('lact'), supp=g('supp'), ipo=g('ipoperf'), svi=D.svi,
+      tp=D.tapsePaps, papi=D.papi, rvlv=n('rvlv'), rvB=n('rvBase'),
+      eea=D.EeAvg, lavi=(n('lavi')!==null?n('lavi'):D.lavi), peri=g('peri'), tamp=g('tamp'),
+      vci=n('vciMax'), coll=D.vciColl, pas=num(S.pas);
+  var R={ has:false, pattern:null, patternCls:'box-accent', why:[], quad:null, scai:null, scaiWhy:'', next:[] };
+
+  /* --- perfusione e congestione --- */
+  var hypo=[], cong=[], dry=[];
+  if(ci!==null&&ci!==undefined&&ci<2.2) hypo.push('CI '+nff(ci,1)+' L/min/m²');
+  if(cpo!==null&&cpo!==undefined&&cpo<0.6) hypo.push('CPO '+nff(cpo,2)+' W');
+  if(svi!==null&&svi!==undefined&&svi<35) hypo.push('SVi '+nff(svi,0)+' ml/m²');
+  if(lact!==null&&lact>2) hypo.push('lattato '+nff(lact,1)+' mmol/L');
+  if(ipo==='presenti') hypo.push('segni clinici di ipoperfusione');
+  if(pcwp!==null&&pcwp>15) cong.push('PCWP '+nff(pcwp,0)+' mmHg');
+  if(eea!==null&&eea!==undefined&&eea>14) cong.push('E/e\u2019 medio '+nff(eea,1));
+  if(lavi!==null&&lavi>34) cong.push('LAVi '+nff(lavi,0)+' ml/m²');
+  if(rap!==null&&rap!==undefined&&rap>=10) cong.push('PAD '+nff(rap,0)+' mmHg');
+  if(vci!==null&&vci<=15&&coll!==null&&coll!==undefined&&coll>50) dry.push('VCI collassante');
+  if(rap!==null&&rap!==undefined&&rap<=5) dry.push('PAD '+nff(rap,0)+' mmHg');
+  var lowPerf=hypo.length>0, congested=cong.length>0;
+  if(!(pam!==null&&pam!==undefined)&&!lowPerf&&!congested) return R;
+  R.has=true;
+
+  /* --- quadrante emodinamico --- */
+  R.quad = (lowPerf?'freddo':'caldo')+'-'+(congested?'umido':'secco');
+
+  /* --- pattern --- */
+  var rvBig = (rvlv!==null&&rvlv>1)||(rvB!==null&&rvB>41);
+  var uncoup = (tp!==null&&tp!==undefined&&tp<0.31)||(papi!==null&&papi!==undefined&&papi<0.9);
+  var vaso = (svri!==null&&svri!==undefined&&svri<1600)||(D.svr!==undefined&&D.svr!==null&&D.svr<700);
+  var highRes = (svri!==null&&svri!==undefined&&svri>2390);
+  if((peri&&(peri==='moderato'||peri==='abbondante'))||(tamp&&tamp!=='assenti')){
+    R.pattern='Shock ostruttivo — tamponamento cardiaco'; R.patternCls='box-red';
+    R.why.push('versamento pericardico '+(peri||'—')+(tamp&&tamp!=='assenti'?' con '+tamp:''));
+    R.next.push('Pericardiocentesi urgente; evita di ridurre il precarico e la frequenza.');
+  } else if(rvBig&&uncoup&&lowPerf){
+    R.pattern='Shock a prevalenza destra — disaccoppiamento VD–arteria polmonare'; R.patternCls='box-red';
+    if(tp!==null&&tp!==undefined) R.why.push('TAPSE/PAPs '+nff(tp,2)+' mm/mmHg');
+    if(papi!==null&&papi!==undefined) R.why.push('PAPi '+nff(papi,2));
+    if(rvlv!==null) R.why.push('VD/VS '+nff(rvlv,2));
+    R.next.push('Cerca la causa acuta: embolia polmonare, infarto del ventricolo destro, ipertensione polmonare acuta.');
+    R.next.push('Volume con parsimonia (il VD dilatato peggiora con il carico), noradrenalina precoce per la perfusione coronarica, considera inotropo e vasodilatatore polmonare.');
+  } else if(vaso&&(ci===null||ci===undefined||ci>=2.2)){
+    R.pattern='Shock distributivo / vasoplegico'; R.patternCls='box-warn';
+    if(svri!==null&&svri!==undefined) R.why.push('SVRI '+nff(svri,0)+' dyn·s·cm⁻⁵·m²');
+    R.next.push('Vasopressore e ricerca della causa: sepsi, anafilassi, vasoplegia post-cardiotomia, insufficienza surrenalica.');
+  } else if(lowPerf&&congested){
+    R.pattern='Shock cardiogeno — profilo freddo-umido'; R.patternCls='box-red';
+    R.next.push('Inotropo se PAM adeguata, vasopressore se PAM <65 mmHg, diuretico/scarico sulla congestione.');
+    R.next.push('Se CPO <0,6 W nonostante il supporto farmacologico, valuta il supporto meccanico.');
+  } else if(lowPerf&&!congested&&(dry.length||highRes)){
+    R.pattern='Profilo ipovolemico / a basso precarico'; R.patternCls='box-warn';
+    R.next.push('Fluid challenge guidato: rivaluta VTI del LVOT e VCI dopo 250 ml.');
+  } else if(vaso){
+    R.pattern='Shock distributivo / vasoplegico'; R.patternCls='box-warn';
+    R.next.push('Vasopressore e ricerca della causa: sepsi, anafilassi, vasoplegia post-cardiotomia.');
+  } else if(lowPerf){
+    R.pattern='Ipoperfusione senza pattern univoco'; R.patternCls='box-warn';
+    R.next.push('Completa il dato mancante: PVC/PAD, PCWP o E/e\u2019, resistenze.');
+  } else {
+    R.pattern='Assenza di criteri di ipoperfusione'; R.patternCls='box-ok';
+  }
+  R.why = R.why.concat(hypo).concat(cong.length?['congestione: '+cong.join(', ')]:[]);
+  if(vaso&&R.pattern&&R.pattern.indexOf('distributivo')<0) R.next.push('Resistenze sistemiche basse: componente vasoplegica associata.');
+
+  /* --- stadio SCAI --- */
+  var lowBP = (pas!==null&&pas<90)||(pam!==null&&pam!==undefined&&pam<60);
+  if(supp==='arresto o shock refrattario'){ R.scai='E'; R.scaiWhy='arresto o shock refrattario'; }
+  else if(supp==='≥2 farmaci vasoattivi'||supp==='supporto meccanico (IABP / Impella / ECMO)'){ R.scai='D'; R.scaiWhy='deterioramento nonostante il supporto iniziale'; }
+  else if(lowPerf&&(supp&&supp!=='nessuno')){ R.scai='C'; R.scaiWhy='ipoperfusione che richiede supporto'; }
+  else if(lowPerf){ R.scai='C'; R.scaiWhy='ipoperfusione in atto'; }
+  else if(lowBP){ R.scai='B'; R.scaiWhy='ipotensione senza ipoperfusione'; }
+  else { R.scai='A'; R.scaiWhy='nessuna ipotensione né ipoperfusione'; }
+  return R;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   CINETICA SEGMENTARIA — 17 segmenti
+   ═══════════════════════════════════════════════════════════════════════════ */
+var SEGNAME = {1:'basale anteriore',2:'basale anterosettale',3:'basale inferosettale',4:'basale inferiore',
+  5:'basale inferolaterale',6:'basale anterolaterale',7:'medio anteriore',8:'medio anterosettale',
+  9:'medio inferosettale',10:'medio inferiore',11:'medio inferolaterale',12:'medio anterolaterale',
+  13:'apicale anteriore',14:'apicale settale',15:'apicale inferiore',16:'apicale laterale',17:'apice'};
+var WALLS = [
+  {n:'parete anteriore', s:[1,7,13]}, {n:'setto anteriore', s:[2,8]},
+  {n:'setto inferiore', s:[3,9]}, {n:'setto apicale', s:[14]},
+  {n:'parete inferiore', s:[4,10,15]}, {n:'parete inferolaterale', s:[5,11]},
+  {n:'parete anterolaterale', s:[6,12]}, {n:'parete laterale apicale', s:[16]}, {n:'apice', s:[17]}
+];
+var SEGCOL = {0:'#F3F2EF',1:'#EAF3DE',2:'#FBF3D6',3:'#FBE9D8',4:'#FBE3E3'};
+var SEGLAB = {0:'normocinetico (default)',1:'normocinesia',2:'ipocinesia',3:'acinesia',4:'discinesia'};
+function pol(cx,cy,r,deg){ var a=deg*Math.PI/180; return [cx+r*Math.cos(a), cy+r*Math.sin(a)]; }
+function sector(cx,cy,r1,r2,a1,a2){
+  var p1=pol(cx,cy,r2,a1), p2=pol(cx,cy,r2,a2), p3=pol(cx,cy,r1,a2), p4=pol(cx,cy,r1,a1);
+  var large=(a2-a1)>180?1:0;
+  return 'M'+p1[0].toFixed(1)+','+p1[1].toFixed(1)+
+         'A'+r2+','+r2+' 0 '+large+' 1 '+p2[0].toFixed(1)+','+p2[1].toFixed(1)+
+         'L'+p3[0].toFixed(1)+','+p3[1].toFixed(1)+
+         'A'+r1+','+r1+' 0 '+large+' 0 '+p4[0].toFixed(1)+','+p4[1].toFixed(1)+'Z';
+}
+function bullHTML(){
+  var cx=145, cy=145, svg='<svg viewBox="0 0 290 290" xmlns="http://www.w3.org/2000/svg">';
+  var basal=[[-120,-60,1],[-180,-120,2],[120,180,3],[60,120,4],[0,60,5],[-60,0,6]];
+  var mid  =[[-120,-60,7],[-180,-120,8],[120,180,9],[60,120,10],[0,60,11],[-60,0,12]];
+  var api  =[[-135,-45,13],[135,225,14],[45,135,15],[-45,45,16]];
+  function add(list,r1,r2){
+    for(var i=0;i<list.length;i++){
+      var a=list[i], id=a[2], mid2=(a[0]+a[1])/2, tp=pol(cx,cy,(r1+r2)/2,mid2);
+      svg+='<path d="'+sector(cx,cy,r1,r2,a[0],a[1])+'" data-seg="'+id+'" id="sg_'+id+'" fill="'+SEGCOL[0]+'"></path>';
+      svg+='<text x="'+tp[0].toFixed(1)+'" y="'+(tp[1]+3).toFixed(1)+'">'+id+'</text>';
+    }
+  }
+  add(basal,98,138); add(mid,60,98); add(api,26,60);
+  svg+='<circle cx="'+cx+'" cy="'+cy+'" r="26" data-seg="17" id="sg_17" fill="'+SEGCOL[0]+'"></circle>';
+  svg+='<text x="'+cx+'" y="'+(cy+3)+'">17</text>';
+  svg+='</svg>';
+  var leg='<div class="wm-legend"><div style="font-weight:600;font-size:12px;margin-bottom:2px">Tocca un segmento per cambiarne il punteggio</div>';
+  for(var s=1;s<=4;s++) leg+='<span><i style="background:'+SEGCOL[s]+'"></i>'+s+' — '+SEGLAB[s]+'</span>';
+  leg+='<span><i style="background:'+SEGCOL[0]+'"></i>non modificato — considerato normocinetico</span>';
+  leg+='<div class="hint" style="margin-top:8px">Anteriore in alto, setto a sinistra, laterale a destra.<br>Il WMSI è calcolato sui 16 segmenti (l\u2019apice, segmento 17, è escluso dal punteggio di cinetica).</div>';
+  leg+='<div id="wmsiOut" class="box box-accent" style="margin-top:8px"><b>WMSI</b><span id="wmsiTxt">—</span></div></div>';
+  return '<div class="bull-wrap"><div class="bull">'+svg+'</div>'+leg+'</div>';
+}
+function paintSeg(){
+  for(var i=1;i<=17;i++){ var el=$('sg_'+i); if(el) el.setAttribute('fill', SEGCOL[SEG[i]||0]); }
+  var t = (D.wmsi!==null&&D.wmsi!==undefined)
+    ? nff(D.wmsi,2)+' (16 segmenti; '+D.wmsiN+' con alterazione)'+(D.wmsi>1?' — cinetica segmentaria alterata':' — cinetica segmentaria conservata')
+    : '—';
+  var w=$('wmsiTxt'); if(w) w.textContent=t;
+}
+function segText(){
+  var any=false, all=[];
+  for(var i=1;i<=17;i++){ if(SEG[i]&&SEG[i]>1){ any=true; all.push(i); } }
+  if(!any) return null;
+  var apicalOnly = all.every(function(x){ return x>=13; });
+  var byScore={};
+  for(var w=0;w<WALLS.length;w++){
+    var W=WALLS[w], involved=[], scores={};
+    for(var j=0;j<W.s.length;j++){ var v=SEG[W.s[j]]||0; if(v>1){ involved.push(W.s[j]); if(!scores[v]) scores[v]=[]; scores[v].push(W.s[j]); } }
+    if(!involved.length) continue;
+    for(var sc in scores){ if(!scores.hasOwnProperty(sc)) continue;
+      if(!byScore[sc]) byScore[sc]=[];
+      if(scores[sc].length===W.s.length) byScore[sc].push(W.n);
+      else for(var q=0;q<scores[sc].length;q++) byScore[sc].push(SEGNAME[scores[sc][q]]);
+    }
+  }
+  var out=[];
+  [2,3,4].forEach(function(s){
+    if(byScore[s]&&byScore[s].length){
+      var l=byScore[s];
+      out.push(SEGLAB[s]+(apicalOnly?' dei segmenti apicali (':' di ')+l.join(', ')+(apicalOnly?')':''));
+    }
+  });
+  return out.join('; ');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   COSTRUZIONE DELL'INTERFACCIA
+   ═══════════════════════════════════════════════════════════════════════════ */
+var DEC = { mass:0,massi:0,rwt:2,ef:0,efm:0,sf:0,sAvg:1,EDVi:0,ESVi:0,LVIDdi:1,fac:0,lavi:0,ravi:0,
+  ladAo:2,aoSoVi:1,vciColl:0,rap:0,trGrad:0,paps:0,papd:0,pvr:1,lvotArea:2,sv:0,svi:0,co:1,ci:1,svVol:0,
+  EA:2,eAvg:1,EeSep:1,EeLat:1,EeAvg:1,pvSD:2,ava:2,avai:2,dvi:2,arERO:0,arRV:0,msMVApht:2,mrERO:0,mrRV:0,
+  trERO:0,trRV:0,tvAnni:1,prEOAref:2,paEOA:2,paiEOA:2,paDVI:2,paATET:2,pmEOA:2,pmiEOA:2,pmDVI:2,
+  pam:0,cpo:2,cpi:2,ciU:1,svr:0,svri:0,tapsePaps:2,papi:2,rvlv:2 };
+function dec(k){ return DEC[k]!==undefined?DEC[k]:1; }
+
+var TABS = [
+  {id:'lv',  n:'Ventricolo sn'},
+  {id:'rv',  n:'Ventricolo dx'},
+  {id:'at',  n:'Atri'},
+  {id:'ao',  n:'Aorta · VCI'},
+  {id:'hemo',n:'Emodinamica'},
+  {id:'utic',n:'UTIC · shock'},
+  {id:'dia', n:'Diastole'},
+  {id:'val', n:'Valvulopatie'},
+  {id:'pro', n:'Protesi'},
+  {id:'rep', n:'Referto'}
+];
+function buildUI(){
+  var nav='', tabs='';
+  for(var i=0;i<TABS.length;i++) nav+='<button data-tab="'+TABS[i].id+'"'+(i===0?' class="on"':'')+'>'+TABS[i].n+'</button>';
+  $('nav').innerHTML=nav;
+
+  /* — ventricolo sinistro — */
+  tabs+='<div class="tab on" id="t_lv">'+
+    '<div class="subsection-label">Ventricolo sinistro</div>'+
+    groupHTML('Misure lineari (telediastole, punte dei lembi mitralici)', LV_LIN)+
+    groupHTML('Volumi (Simpson biplano — inserisci i volumi in ml)', LV_VOL)+
+    groupHTML('Geometria', LV_GEO, 'Massa = 0,8 × 1,04 × [(IVSd+LVIDd+PWd)³ − LVIDd³] + 0,6 g · RWT = 2 × PWd / LVIDd. Pattern: RWT >0,42 con massa normale = rimodellamento concentrico; RWT >0,42 con massa aumentata = ipertrofia concentrica; RWT ≤0,42 con massa aumentata = ipertrofia eccentrica.')+
+    '<div id="geoOut"></div>'+
+    groupHTML('Funzione sistolica', LV_FUN)+
+    '<div id="lvOut"></div>'+
+    '<div class="subsection-label">Cinetica segmentaria</div>'+ bullHTML() +
+  '</div>';
+
+  /* — ventricolo destro — */
+  tabs+='<div class="tab" id="t_rv">'+
+    '<div class="subsection-label">Ventricolo destro</div>'+
+    groupHTML('Dimensioni (proiezione 4C RV-focused)', RV_DIM)+
+    groupHTML('Funzione', RV_FUN)+
+    groupHTML('Pressioni polmonari', RV_PRESS, 'PAD stimata dalla vena cava inferiore (scheda Aorta · VCI). PAPs = 4 × V max TR² + PAD. PVR (Abbas) = V max TR / VTI RVOT × 10 + 0,16.')+
+    '<div id="phOut"></div>'+
+  '</div>';
+
+  /* — atri — */
+  tabs+='<div class="tab" id="t_at">'+
+    '<div class="subsection-label">Atrio sinistro</div>'+
+    groupHTML('', LA_P, 'Volume misurato a fine sistole, immediatamente prima dell\u2019apertura mitralica, con metodo dei dischi biplano, escludendo vene polmonari e auricola.')+
+    '<div class="subsection-label">Atrio destro</div>'+
+    groupHTML('', RA_P)+
+  '</div>';
+
+  /* — aorta e vena cava — */
+  tabs+='<div class="tab" id="t_ao">'+
+    '<div class="subsection-label">Aorta</div>'+
+    groupHTML('Diametri', AO_P, 'Anulus in mesosistole, inner-edge to inner-edge; radice e aorta in telediastole, leading-edge to leading-edge. Soglie assolute di allerta: ≥45 mm sorveglianza stretta, ≥55 mm valutazione chirurgica (soglie inferiori per bicuspidia e sindromi genetiche).')+
+    '<div class="subsection-label">Vena cava inferiore</div>'+
+    groupHTML('', VCI_P, 'VCI ≤21 mm con collasso >50% → PAD 3 mmHg · VCI >21 mm con collasso <50% → PAD 15 mmHg · casi intermedi → 8 mmHg.')+
+    '<div id="vciOut"></div>'+
+    '<div class="subsection-label">Pericardio</div>'+
+    groupHTML('', PERI_P)+
+  '</div>';
+
+  /* — emodinamica — */
+  tabs+='<div class="tab" id="t_hemo">'+
+    '<div class="subsection-label">Emodinamica</div>'+
+    groupHTML('Portata e gittata', HEMO_P, 'Area LVOT = 0,785 × d² · SV = area × VTI LVOT · CO = SV × FC · CI = CO / BSA. Il campionamento PW va posto 0,5 cm a monte del piano valvolare, nello stesso punto in cui si misura il diametro.')+
+    '<div id="hemoOut"></div>'+
+  '</div>';
+
+  /* — UTIC — */
+  tabs+='<div class="tab" id="t_utic">'+
+    '<div class="subsection-label">Shock — inquadramento emodinamico</div>'+
+    '<div class="hint">Inserisci la pressione arteriosa in testata. Il modulo usa la portata calcolata nella scheda Emodinamica e la PAD stimata dalla vena cava, salvo che tu non inserisca i dati invasivi qui sotto: in quel caso hanno la precedenza.</div>'+
+    '<div id="uticTop"></div>'+
+    groupHTML('Dati clinici', UT_CLIN)+
+    groupHTML('Potenza e resistenze', UT_POWER, 'CPO = PAM × CO / 451. Un CPO <0,6 W è il predittore emodinamico più forte di mortalità intraospedaliera nello shock cardiogeno. SVR = 80 × (PAM − PAD) / CO.')+
+    groupHTML('Cuore destro', UT_RIGHT, 'TAPSE/PAPs <0,31 mm/mmHg indica disaccoppiamento ventricolo destro–arteria polmonare. PAPi = (PAPs − PAPd) / PAD: <0,9 identifica il rischio di insufficienza destra.')+
+    groupHTML('Dati invasivi, se disponibili', UT_INV, 'Compilali solo se hai catetere venoso centrale, Swan-Ganz o termodiluizione: sovrascrivono le stime ecocardiografiche.')+
+    '<div id="uticOut"></div>'+
+    '<div class="btnrow"><button class="btn" id="copyUtic">Copia la sintesi emodinamica</button></div>'+
+    '<textarea id="uticRaw" style="position:absolute;left:-9999px;top:0"></textarea>'+
+  '</div>';
+
+  /* — diastole — */
+  tabs+='<div class="tab" id="t_dia">'+
+    '<div class="subsection-label">Funzione diastolica</div>'+
+    groupHTML('Flusso mitralico e Doppler tissutale', DIA_P, 'Algoritmo ASE 2025. I cut-off di e\u2019 mostrati nella colonna di riferimento sono età-specifici (Tab. 6); l\u2019algoritmo di grading usa i valori fissi e\u2019 settale ≤6, laterale ≤7, media ≤6,5 cm/s.')+
+    '<div id="diaOut"></div>'+
+  '</div>';
+
+  /* — valvulopatie — */
+  tabs+='<div class="tab" id="t_val">'+
+    '<div class="subnav" id="vnav">'+
+      '<button data-v="va" class="on">Aortica</button><button data-v="vm">Mitrale</button>'+
+      '<button data-v="vt">Tricuspide</button><button data-v="vp">Polmonare</button>'+
+    '</div>'+
+    '<div class="sub-tab on" id="v_va">'+
+      '<div class="subsection-label">Valvola aortica</div>'+
+      groupHTML('Morfologia', AV_MORF)+
+      groupHTML('Stenosi', AS_P, 'AVA = SV (dalla scheda Emodinamica) / VTI transaortico. Serve il diametro e il VTI del LVOT.')+
+      '<div id="asOut"></div>'+
+      groupHTML('Insufficienza', AR_P, 'EROA = 2πr² × Va / V max del rigurgito · RVol = EROA × VTI del rigurgito.')+
+      '<div id="arOut"></div>'+
+    '</div>'+
+    '<div class="sub-tab" id="v_vm">'+
+      '<div class="subsection-label">Valvola mitrale</div>'+
+      groupHTML('Morfologia', MV_MORF)+
+      groupHTML('Stenosi', MS_P)+
+      '<div id="msOut"></div>'+
+      groupHTML('Insufficienza', MR_P, 'Nel rigurgito secondario le soglie di severità sono EROA ≥20 mm² e RVol ≥30 ml.')+
+      '<div id="mrOut"></div>'+
+    '</div>'+
+    '<div class="sub-tab" id="v_vt">'+
+      '<div class="subsection-label">Valvola tricuspide</div>'+
+      groupHTML('', TV_P, 'Per la PISA tricuspidale si usa uno shift della linea di base a 28 cm/s. La V max del rigurgito si inserisce nella scheda Ventricolo dx.')+
+      '<div id="trOut"></div>'+
+    '</div>'+
+    '<div class="sub-tab" id="v_vp">'+
+      '<div class="subsection-label">Valvola polmonare</div>'+
+      groupHTML('', PV_P)+
+      '<div id="pvOut"></div>'+
+    '</div>'+
+  '</div>';
+
+  /* — protesi — */
+  tabs+='<div class="tab" id="t_pro">'+
+    '<div class="subsection-label">Protesi valvolare</div>'+
+    groupHTML('Identificazione', PR_COMMON, 'L\u2019EOA di riferimento è il valore medio pubblicato per quel modello e quella misura (EACVI 2016, Tab. 7–8): è il termine di paragone per distinguere il mismatch dalla degenerazione.')+
+    '<div id="proAo">'+groupHTML('Protesi aortica', PR_AO)+'</div>'+
+    '<div id="proMi">'+groupHTML('Protesi mitralica', PR_MI)+'</div>'+
+    '<div id="proTp">'+groupHTML('Protesi tricuspidalica e polmonare', PR_TP)+'</div>'+
+    groupHTML('Reperti aggiuntivi', PR_NOTE)+
+    '<div id="proOut"></div>'+
+  '</div>';
+
+  /* — referto — */
+  tabs+='<div class="tab" id="t_rep">'+
+    '<div class="subsection-label">Referto</div>'+
+    '<div class="hint">I valori mancanti compaiono come <span class="ph">[…]</span> da completare a mano. Rileggi sempre il testo prima di firmarlo.</div>'+
+    '<div class="btnrow"><button class="btn" id="copyBtn">Copia il referto</button>'+
+    '<button class="btn sec" id="rebuildBtn">Aggiorna</button>'+
+    '<button class="btn warn" id="resetBtn">Azzera tutto</button></div>'+
+    '<div class="rep"><div class="rep-t" id="repOut"></div></div>'+
+    '<textarea id="repRaw" style="position:absolute;left:-9999px;top:0"></textarea>'+
+    '<div class="subsection-label">Conclusioni automatiche</div>'+
+    '<div id="repConcl"></div>'+
+  '</div>';
+
+  $('tabs').innerHTML=tabs;
+  var opts=modelList('aortica'), sel=$('f_prMod'), o='';
+  for(var m=0;m<opts.length;m++) o+='<option>'+opts[m]+'</option>';
+  sel.innerHTML=o;
+}
+
+/* ── applicazione dei valori e dei colori ───────────────────────────────── */
+function paintRow(k){
+  var p=P[k]; if(!p) return;
+  var inp=$('f_'+k); if(!inp) return;
+  if(p.calc){ var dv=D[k]; inp.value = (dv===null||dv===undefined||!isFinite(dv))?'':nff(dv,dec(k)); }
+  var sp=spec(p), ref=$('r_'+k), b=$('b_'+k), row=inp.closest?inp.closest('.prow'):null;
+  if(ref) ref.textContent = refText(sp);
+  if(!b) return;
+  var v = p.calc? (D[k]===undefined?null:D[k]) : num(S[k]);
+  var gr = grade(v, sp);
+  if(v===null||!sp||!gr){ b.className='p-b empty'; b.textContent = (v===null)?'—':'ok'; b.style.cssText=''; if(row) row.style.background=''; return; }
+  var c = (gr.lab==='sotto range'||gr.lab==='sopra range') ? BLUE : sevColor(gr.t);
+  b.className='p-b'; b.textContent=gr.lab;
+  b.style.color=c.fg; b.style.background=c.bg; b.style.borderColor=c.bd;
+  if(row) row.style.background = gr.t>0 ? c.bg : '';
+}
+function box(cls,title,body){ return '<div class="box '+cls+'">'+(title?'<b>'+title+'</b>':'')+body+'</div>'; }
+function verdictBox(v, title){
+  if(!v) return '';
+  var cls = v.lvl===0?'box-ok':(v.lvl===1?'box-accent':(v.lvl===2?'box-warn':'box-red'));
+  var body='<div class="verdict">'+v.txt+(v.why&&v.why.length?'<span class="sub">'+v.why.join(' · ')+'</span>':'')+'</div>';
+  if(v.notes&&v.notes.length) body+='<ul><li>'+v.notes.join('</li><li>')+'</li></ul>';
+  return box(cls,title,body);
+}
+
+function refresh(){
+  recalc();
+  for(var k in P) if(P.hasOwnProperty(k)) paintRow(k);
+  var bsa=D.bsa;
+  $('bsaChip').textContent = bsa? 'BSA '+nff(bsa,2)+' m²' : 'BSA —';
+  paintSeg();
+
+  /* geometria + funzione VS */
+  var gp=geoPattern(), ec=efClass(), h='';
+  if(gp) h+=box(gp.cls==='ok'?'box-ok':'box-warn','Geometria del ventricolo sinistro',
+      '<div class="verdict">'+gp.p.charAt(0).toUpperCase()+gp.p.slice(1)+
+      '<span class="sub">massa indicizzata '+(D.massi!==undefined&&D.massi!==null?nff(D.massi,0)+' g/m²':'—')+
+      ' · RWT '+(D.rwt!==undefined&&D.rwt!==null?nff(D.rwt,2):'—')+'</span></div>');
+  $('geoOut').innerHTML=h;
+  var h2='';
+  if(ec){
+    var cls = ec.k==='norm'?'box-ok':(ec.k==='lieve'?'box-warn':(ec.k==='iper'?'box-accent':'box-red'));
+    h2+=box(cls,'Funzione sistolica globale','<div class="verdict">Funzione sistolica '+ec.l+
+      '<span class="sub">FE '+nff(D.efUse,0)+'% · '+(D.svVol!==undefined&&D.svVol!==null?'gittata '+nff(D.svVol,0)+' ml · ':'')+
+      (n('gls')!==null?'GLS −'+nff(n('gls'),1)+'%':'GLS non misurato')+'</span></div>');
+  }
+  $('lvOut').innerHTML=h2;
+
+  /* ipertensione polmonare */
+  var tr=n('trVmax'), paps=D.paps, paat=n('paat'), ph='';
+  if(tr!==null||paps!==undefined){
+    var lv2, txt;
+    if(tr===null){ lv2='ind'; txt='V max del rigurgito tricuspidale non misurabile'; }
+    else if(tr<=2.8){ lv2='low'; txt='Bassa probabilità di ipertensione polmonare'; }
+    else if(tr<=3.4){ lv2='int'; txt='Probabilità intermedia di ipertensione polmonare'; }
+    else { lv2='high'; txt='Alta probabilità di ipertensione polmonare'; }
+    var sub=[];
+    if(tr!==null) sub.push('TR V max '+nff(tr,1)+' m/s');
+    if(paps!==undefined&&paps!==null) sub.push('PAPs '+nff(paps,0)+' mmHg (PAD '+nff(D.rap,0)+')');
+    if(paat!==null) sub.push('PAAT '+nff(paat,0)+' ms');
+    if(D.pvr!==undefined&&D.pvr!==null) sub.push('PVR '+nff(D.pvr,1)+' WU');
+    ph+=box(lv2==='low'?'box-ok':(lv2==='int'?'box-warn':(lv2==='high'?'box-red':'box-accent')),
+      'Probabilità di ipertensione polmonare','<div class="verdict">'+txt+'<span class="sub">'+sub.join(' · ')+'</span></div>'+
+      (paat!==null&&paat<105?'<ul><li>PAAT <105 ms: segno ecocardiografico aggiuntivo a favore.</li></ul>':''));
+  }
+  $('phOut').innerHTML=ph;
+
+  /* vena cava */
+  var vh='';
+  if(D.rap!==null&&D.rap!==undefined) vh=box('box-accent','Pressione atriale destra stimata',
+    '<div class="verdict">PAD '+nff(D.rap,0)+' mmHg<span class="sub">VCI '+(n('vciMax')!==null?nff(n('vciMax'),0)+' mm':'—')+
+    ' · collasso '+(D.vciColl!==undefined&&D.vciColl!==null?nff(D.vciColl,0)+'%':'—')+'</span></div>');
+  $('vciOut').innerHTML=vh;
+
+  /* emodinamica */
+  var hh='';
+  if(D.co!==undefined&&D.co!==null) hh=box(D.ci!==null&&D.ci<2.2?'box-red':'box-ok','Portata',
+    '<div class="verdict">CO '+nff(D.co,1)+' L/min · CI '+nff(D.ci,1)+' L/min/m²<span class="sub">SV '+nff(D.sv,0)+' ml · SVi '+
+    (D.svi!==null?nff(D.svi,0):'—')+' ml/m²'+(D.svi!==null&&D.svi<35?' — basso flusso (SVi <35)':'')+'</span></div>');
+  $('hemoOut').innerHTML=hh;
+
+  /* diastole */
+  var dd=diastole(), s1=diastoleStep1(), dh='';
+  var dcls = !dd.ok?'box-accent':(dd.grade===0?'box-ok':(dd.grade===1?'box-warn':'box-red'));
+  dh+=box(dcls,'Conclusione (algoritmo ASE 2025)','<div class="verdict">'+dd.txt+
+    (dd.detail.length?'<span class="sub">'+dd.detail.join(' · ')+'</span>':'')+'</div>'+
+    (dd.notes.length?'<ul><li>'+dd.notes.join('</li><li>')+'</li></ul>':''));
+  if(s1) dh+=box('box-accent','Step 1 — c\u2019è disfunzione diastolica?',
+    '<div class="verdict">'+(s1.dd?'Criteri soddisfatti per disfunzione diastolica':'Criteri non soddisfatti')+
+    '<span class="sub">e\u2019 ridotta: '+(s1.red?'sì':'no')+' · marker di rimodellamento/LAP positivi: '+s1.markers+' su '+s1.tot+' valutabili (E/e\u2019 media >14, LARS ≤18%, E/A ≤0,8, LAVi >34)</span></div>');
+  $('diaOut').innerHTML=dh;
+
+  /* valvole */
+  $('asOut').innerHTML=verdictBox(asVerdict(),'Stenosi aortica');
+  $('arOut').innerHTML=verdictBox(arVerdict(),'Insufficienza aortica');
+  $('msOut').innerHTML=verdictBox(msVerdict(),'Stenosi mitralica');
+  $('mrOut').innerHTML=verdictBox(mrVerdict(),'Insufficienza mitralica');
+  $('trOut').innerHTML=verdictBox(trVerdict(),'Insufficienza tricuspidalica');
+  var pvv=psVerdict();
+  $('pvOut').innerHTML=verdictBox(pvv.ps,'Stenosi polmonare')+verdictBox(pvv.pr,'Insufficienza polmonare');
+
+  /* protesi */
+  var pos=g('prPos');
+  $('proAo').style.display = (pos==='aortica')?'block':'none';
+  $('proMi').style.display = (pos==='mitralica')?'block':'none';
+  $('proTp').style.display = (pos==='tricuspidalica'||pos==='polmonare')?'block':'none';
+  var pv2=prosthVerdict(), pho='';
+  if(pv2) pho=box(pv2.cls,'Valutazione della protesi','<div class="verdict">'+pv2.txt+'</div>'+
+    (pv2.lines.length?'<ul><li>'+pv2.lines.join('</li><li>')+'</li></ul>':'')+
+    (pv2.notes.length?'<ul><li>'+pv2.notes.join('</li><li>')+'</li></ul>':''));
+  $('proOut').innerHTML=pho;
+
+  renderUtic();
+  buildReport();
+}
+
+/* ── pannello UTIC ──────────────────────────────────────────────────────── */
+function renderUtic(){
+  var A=shockAssess(), top='', out='';
+  var cpoTxt = (D.cpo!==undefined&&D.cpo!==null)?nff(D.cpo,2):'—';
+  var cpoCls = (D.cpo===undefined||D.cpo===null)?'box-accent':(D.cpo<0.6?'box-red':'box-ok');
+  top = box(cpoCls,'Cardiac power output',
+    '<div class="big">'+cpoTxt+' <span class="un">W</span>'+
+    (D.cpi!==undefined&&D.cpi!==null?'  ·  '+nff(D.cpi,2)+' <span class="un">W/m²</span>':'')+'</div>'+
+    '<div style="font-size:12px;color:var(--text-secondary);margin-top:4px">PAM '+
+    (D.pam!==undefined&&D.pam!==null?nff(D.pam,0)+' mmHg':'—')+' · CO '+
+    (D.coU!==null&&D.coU!==undefined?nff(D.coU,1)+' L/min':'—')+' · CI '+
+    (D.ciU!==null&&D.ciU!==undefined?nff(D.ciU,1)+' L/min/m²':'—')+' · PAD '+
+    (D.rapU!==null&&D.rapU!==undefined?nff(D.rapU,0)+' mmHg':'—')+
+    (n('coInv')!==null?' · portata da termodiluizione':'')+'</div>');
+  $('uticTop').innerHTML=top;
+
+  if(A.has){
+    var qs=['freddo-umido','caldo-umido','freddo-secco','caldo-secco'];
+    var qlab={'freddo-umido':'Ipoperfuso e congesto','caldo-umido':'Perfuso ma congesto','freddo-secco':'Ipoperfuso, non congesto','caldo-secco':'Perfuso, non congesto'};
+    var q='<div class="quad">';
+    for(var i=0;i<qs.length;i++) q+='<div class="qc'+(A.quad===qs[i]?' on':'')+'"'+(A.quad===qs[i]?' style="border-color:var(--accent-blue);background:var(--accent-blue-bg)"':'')+
+      '><span class="qt">'+qs[i]+'</span><br>'+qlab[qs[i]]+'</div>';
+    q+='</div>';
+    var sc='<div class="scai">';
+    ['A','B','C','D','E'].forEach(function(x){
+      var on=(A.scai===x), col=(x==='A'||x==='B')?'var(--accent-amber)':'var(--accent-red)';
+      sc+='<span'+(on?' style="background:'+col+';color:#fff;border-color:'+col+'"':'')+'>SCAI '+x+'</span>';
+    });
+    sc+='</div>';
+    out = box(A.patternCls,'Pattern emodinamico',
+      '<div class="verdict">'+A.pattern+(A.why.length?'<span class="sub">'+A.why.join(' · ')+'</span>':'')+'</div>'+
+      q+sc+'<div style="font-size:12px;color:var(--text-secondary)">Stadio SCAI '+A.scai+' — '+A.scaiWhy+'</div>'+
+      (A.next.length?'<ul><li>'+A.next.join('</li><li>')+'</li></ul>':''));
+  } else {
+    out = box('box-accent','Pattern emodinamico','Inserisci pressione arteriosa, portata e almeno un indice di perfusione o di congestione.');
+  }
+  $('uticOut').innerHTML=out;
+
+  /* testo copiabile */
+  var t=[];
+  t.push('Valutazione emodinamica ecocardiografica.');
+  t.push('PAM '+(D.pam!==undefined&&D.pam!==null?nff(D.pam,0):'[…]')+' mmHg, FC '+(num(S.fc)!==null?nff(num(S.fc),0):'[…]')+' bpm.');
+  t.push('Gittata sistolica '+(D.sv!==undefined&&D.sv!==null?nff(D.sv,0):'[…]')+' ml (SVi '+(D.svi!==undefined&&D.svi!==null?nff(D.svi,0):'[…]')+
+    ' ml/m²), portata '+(D.coU!==null&&D.coU!==undefined?nff(D.coU,1):'[…]')+' L/min, indice cardiaco '+
+    (D.ciU!==null&&D.ciU!==undefined?nff(D.ciU,1):'[…]')+' L/min/m².');
+  t.push('CPO '+cpoTxt+' W'+(D.cpi!==undefined&&D.cpi!==null?' (indicizzato '+nff(D.cpi,2)+' W/m²)':'')+'.');
+  if(D.svr!==undefined&&D.svr!==null) t.push('Resistenze sistemiche '+nff(D.svr,0)+' dyn·s·cm⁻⁵ (indicizzate '+(D.svri?nff(D.svri,0):'—')+').');
+  t.push('PAD stimata '+(D.rapU!==null&&D.rapU!==undefined?nff(D.rapU,0):'[…]')+' mmHg, PAPs '+(D.papsU!==null&&D.papsU!==undefined?nff(D.papsU,0):'[…]')+' mmHg'+
+    (D.tapsePaps!==undefined&&D.tapsePaps!==null?', TAPSE/PAPs '+nff(D.tapsePaps,2)+' mm/mmHg':'')+
+    (D.papi!==undefined&&D.papi!==null?', PAPi '+nff(D.papi,2):'')+'.');
+  if(n('lact')!==null) t.push('Lattato '+nff(n('lact'),1)+' mmol/L.');
+  if(A.has){
+    t.push('Quadro compatibile con: '+A.pattern.charAt(0).toLowerCase()+A.pattern.slice(1)+
+      (A.pattern.indexOf(A.quad)<0?' (profilo '+A.quad+')':'')+', stadio SCAI '+A.scai+'.');
+  }
+  $('uticRaw').value=t.join(' ');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   REFERTO
+   ═══════════════════════════════════════════════════════════════════════════ */
+function V(k,d){ var v=n(k); return (v===null)?'[…]':nff(v,d===undefined?dec(k):d); }
+function isNorm(k){ var p=P[k]; if(!p) return true; var v=p.calc?D[k]:num(S[k]); if(v===null||v===undefined) return true;
+  var gr=grade(v,spec(p)); return !gr || gr.t===0; }
+function anyAbn(){ for(var i=0;i<arguments.length;i++){ if(!isNorm(arguments[i])) return true; } return false; }
+
+function buildReport(){
+  var s=[];
+
+  /* ── ventricolo sinistro ── */
+  var spess='IVSd '+V('IVSd',0)+' mm, PWd '+V('LVPWd',0)+' mm';
+  var diam='LVIDd '+V('LVIDd',0)+' mm';
+  var vol='VTD '+V('EDV',0)+' ml, VTDi '+V('EDVi',0)+' ml/m²';
+  var fe = (D.ef!==undefined&&D.ef!==null)?nff(D.ef,0):(n('efm')!==null?nff(n('efm'),0):'[…]');
+  var ec=efClass(), gp=geoPattern(), seg=segText();
+  var lvNorm = isNorm('IVSd')&&isNorm('LVPWd')&&isNorm('LVIDd')&&(!ec||ec.k==='norm'||ec.k==='iper')&&isNorm('EDVi')&&!seg;
+  if(lvNorm){
+    s.push('Ventricolo sinistro di normali spessori ('+spess+'), diametro ('+diam+'), volume ('+vol+
+      ') e funzione sistolica globale (FE biplano '+fe+'%), in assenza di deficit della cinetica segmentaria.');
+  } else {
+    var p1;
+    if(!isNorm('IVSd')||!isNorm('LVPWd')) p1='Ventricolo sinistro con aumentati spessori parietali ('+spess+
+      (gp?'; massa indicizzata '+V('massi',0)+' g/m², RWT '+V('rwt',2)+' — '+gp.p:'')+')';
+    else p1='Ventricolo sinistro di normali spessori ('+spess+')';
+    var p2 = isNorm('LVIDd') ? 'normale diametro ('+diam+')' : ((num(S.LVIDd)!==null&&num(S.LVIDd)<((S.sex==='M')?42:38))?'ridotto diametro ('+diam+')':'dilatato ('+diam+', indicizzato '+V('LVIDdi',1)+' mm/m²)');
+    var p3 = isNorm('EDVi') ? 'normale volume telediastolico ('+vol+')' : 'aumentato volume telediastolico ('+vol+')';
+    var p4 = ec ? 'funzione sistolica globale '+(ec.k==='norm'?'conservata':ec.l)+' (FE biplano '+fe+'%'+
+      (n('gls')!==null?', GLS −'+nff(n('gls'),1)+'%':'')+')' : 'funzione sistolica globale (FE biplano '+fe+'%)';
+    var p5 = seg ? 'con '+seg+(D.wmsi?' — WMSI '+nff(D.wmsi,2):'') : 'in assenza di deficit della cinetica segmentaria';
+    s.push(p1+', '+p2+', '+p3+', '+p4+', '+p5+'.');
+  }
+
+  /* ── ventricolo destro ── */
+  var rvN = isNorm('rvBase'), fnN = isNorm('tapse')&&isNorm('rvS')&&isNorm('fac');
+  var rvVals='TAPSE '+V('tapse',0)+' mm, S\u2019 '+V('rvS',1)+' cm/s, FAC '+V('fac',0)+'%';
+  s.push('Ventricolo destro di '+(rvN?'normali dimensioni':'dimensioni aumentate')+' (diametro basale '+V('rvBase',0)+' mm) e funzione '+
+    (fnN?'':'sistolica longitudinale ridotta ')+'('+rvVals+').');
+
+  /* ── atrio sinistro ── */
+  if(n('lavi')!==null||D.lavi!==undefined||n('lad')!==null||n('laa')!==null){
+    var laB=['diametro AP '+V('lad',0)+' mm'];
+    if(n('laa')!==null) laB.push('area '+V('laa',0)+' cm²');
+    laB.push('LAVi '+V('lavi',0)+' ml/m²');
+    var laN=isNorm('lavi')&&isNorm('lad')&&isNorm('laa');
+    s.push('Atrio sinistro di '+(laN?'normali dimensioni':'dimensioni aumentate')+' ('+laB.join(', ')+').');
+  }
+  /* ── atrio destro ── */
+  if(n('raa')!==null||(D.ravi!==undefined&&D.ravi!==null)){
+    var raB=['area '+V('raa',0)+' cm²'];
+    if(D.ravi!==undefined&&D.ravi!==null) raB.push('RAVi '+V('ravi',0)+' ml/m²');
+    s.push('Atrio destro di '+(isNorm('raa')&&isNorm('ravi')?'normali dimensioni':'dimensioni aumentate')+' ('+raB.join(', ')+').');
+  }
+
+  /* ── valvola aortica ── */
+  var morf=g('avMorf')||'tricuspide', asv=asVerdict(), arv=arVerdict();
+  var calcW=g('avCalc'), calcTxt=(calcW&&calcW!=='assente'&&calcW!=='grado 1 — assente/minima')?', calcifica':'';
+  var arTxt = (arv&&arv.lvl>0) ? 'insufficienza aortica '+severityWord(arv.lvl)+' (vena contracta '+V('arVC',1)+' mm'+
+      (D.arERO!==undefined&&D.arERO!==null?', EROA '+V('arERO',0)+' mm², volume rigurgitante '+V('arRV',0)+' ml':'')+')' : null;
+  if(asv&&asv.lvl>0){
+    s.push('Valvola aortica '+morf+calcTxt+', con apertura ridotta: stenosi aortica '+severityWord(asv.lvl)+
+      ' (V max '+V('asVmax',2)+' m/s, gradiente medio '+V('asMG',0)+' mmHg, AVA '+V('ava',2)+' cm², AVA indicizzata '+V('avai',2)+' cm²/m²).');
+    if(arTxt) s.push('Associata '+arTxt+'.');
+  } else {
+    s.push('Valvola aortica '+morf+calcTxt+', '+(arTxt?'con '+arTxt:'continente')+', apertura '+(g('avOpen')||'conservata')+'.');
+  }
+
+  /* ── aorta ── */
+  var aoList=[['aoSoV','radice aortica (SoV'],['aoAsc','aorta ascendente al tratto tubulare ('],['aoArch','arco aortico ('],['aoDesc','aorta discendente ('],['aoAbd','aorta addominale (']];
+  var aoNames={aoSoV:'radice aortica',aoAsc:'aorta ascendente',aoArch:'arco aortico',aoDesc:'aorta discendente',aoAbd:'aorta addominale'};
+  var aoAb=[]; for(var ai=0;ai<aoList.length;ai++) if(!isNorm(aoList[ai][0])) aoAb.push(aoNames[aoList[ai][0]]);
+  var aoTxt='Radice aortica (SoV '+V('aoSoV',0)+' mm), aorta ascendente al tratto tubulare ('+V('aoAsc',0)+
+    ' mm), arco aortico ('+V('aoArch',0)+' mm), aorta discendente ('+V('aoDesc',0)+' mm) ed aorta addominale ('+V('aoAbd',0)+' mm) ';
+  aoTxt += aoAb.length ? 'con dilatazione di: '+aoAb.join(', ')+'.' : 'con diametro nella norma.';
+  s.push(aoTxt);
+
+  /* ── valvola mitrale ── */
+  var mvL=g('mvMorf')||'sottili e mobili', msv=msVerdict(), mrv=mrVerdict();
+  var mvTxt='Valvola mitrale con lembi '+mvL;
+  if(msv&&msv.lvl>0) mvTxt+=': stenosi mitralica '+severityWord(msv.lvl)+' (area '+V('msMVA',2)+' cm², gradiente medio '+V('msMG',0)+' mmHg)';
+  if(mrv&&mrv.lvl>0) mvTxt+=(msv&&msv.lvl>0?'. Associata ':', ')+'insufficienza mitralica '+severityWord(mrv.lvl)+
+    ' (vena contracta '+V('mrVC',1)+' mm'+(D.mrERO!==undefined&&D.mrERO!==null?', EROA '+V('mrERO',0)+' mm², volume rigurgitante '+V('mrRV',0)+' ml':'')+')';
+  else mvTxt+=', continente';
+  s.push(mvTxt+'.');
+
+  /* ── tricuspide e pressioni polmonari ── */
+  var trv=trVerdict();
+  var trLead = (trv&&trv.lvl>0) ? 'Insufficienza tricuspidalica '+severityWord(trv.lvl) : 'Minima insufficienza tricuspidalica';
+  s.push(trLead+', gradiente ventricolo destro − atrio destro '+
+    V('trGrad',0)+' mmHg'+(D.paps!==undefined&&D.paps!==null?', PAPs stimata '+V('paps',0)+' mmHg':'')+'.');
+  var trv2=n('trVmax'), phW = trv2===null?'[…]':(trv2<=2.8?'Bassa':(trv2<=3.4?'Intermedia':'Alta'));
+  s.push(phW+' probabilità di ipertensione polmonare (V max TR '+V('trVmax',1)+' m/s, tempo di accelerazione polmonare '+V('paat',0)+' ms).');
+
+  /* ── polmonare, se patologica ── */
+  var pvv=psVerdict();
+  if(pvv.ps&&pvv.ps.lvl>0) s.push('Stenosi polmonare '+severityWord(pvv.ps.lvl)+' (V max '+V('psVmax',1)+' m/s).');
+  if(pvv.pr&&pvv.pr.lvl>1) s.push('Insufficienza polmonare '+severityWord(pvv.pr.lvl)+'.');
+
+  /* ── diastole ── */
+  var dd=diastole();
+  var diaVals='E '+V('E',0)+' cm/s, E/A '+V('EA',2)+', DT '+V('DT',0)+' ms, e\u2019 med '+V('eSep',1)+' cm/s, e\u2019 lat '+V('eLat',1)+
+    ' cm/s, E/e\u2019 medio '+V('EeAvg',1);
+  if(!dd.ok||dd.grade===0) s.push('Diastole nei limiti ('+diaVals+').');
+  else s.push(dd.txt+' ('+diaVals+(n('lavi')!==null||D.lavi!==undefined?', LAVi '+V('lavi',0)+' ml/m²':'')+
+    (n('lars')!==null?', LARS '+V('lars',0)+'%':'')+').');
+
+  /* ── protesi ── */
+  var pos=g('prPos');
+  if(pos&&pos!=='—'){
+    var pv3=prosthVerdict(), ptxt='Protesi valvolare in sede '+pos+(g('prMod')&&g('prMod')!=='—'?' ('+g('prMod')+(g('prSize')&&g('prSize')!=='—'?' n. '+g('prSize'):'')+')':'');
+    if(pos==='aortica') ptxt+=': V max '+V('pav',2)+' m/s, gradiente medio '+V('pamg',0)+' mmHg, EOA '+V('paEOA',2)+' cm², EOA indicizzata '+V('paiEOA',2)+' cm²/m², DVI '+V('paDVI',2);
+    if(pos==='mitralica') ptxt+=': onda E '+V('pmE',1)+' m/s, gradiente medio '+V('pmMG',0)+' mmHg, PHT '+V('pmPHT',0)+' ms, EOA '+V('pmEOA',2)+' cm², EOA indicizzata '+V('pmiEOA',2)+' cm²/m²';
+    if(pv3&&pv3.txt) ptxt+='. '+pv3.txt;
+    var reg=g(pos==='mitralica'?'pmReg':'paReg');
+    if(reg&&reg!=='fisiologico') ptxt+='. Rigurgito '+reg;
+    s.push(ptxt+'.');
+  }
+
+  /* ── vena cava e pericardio ── */
+  var vDim=isNorm('vciMax'), vColl=(D.vciColl===undefined||D.vciColl===null||D.vciColl>50);
+  var vTxt = (vDim&&vColl) ? 'Vena cava inferiore di normali dimensioni ed escursioni respiratorie'
+    : 'Vena cava inferiore '+(vDim?'di normali dimensioni':'dilatata')+' con '+(vColl?'normali':'ridotte')+' escursioni respiratorie';
+  s.push(vTxt+' ('+V('vciMax',0)+' mm, collasso '+V('vciColl',0)+'%'+(D.rap!==null&&D.rap!==undefined?', PAD stimata '+V('rap',0)+' mmHg':'')+').');
+  var pe=g('peri');
+  if(!pe||pe==='assente') s.push('Non versamento pericardico.');
+  else s.push('Versamento pericardico '+pe+(g('periSede')?' ('+g('periSede')+')':'')+
+    (g('tamp')&&g('tamp')!=='assenti'?', con '+g('tamp'):'')+'.');
+
+  /* ── emodinamica opzionale ── */
+  if(D.co!==undefined&&D.co!==null) s.push('Portata cardiaca '+V('co',1)+' L/min, indice cardiaco '+V('ci',1)+' L/min/m² (SV '+V('sv',0)+' ml, SVi '+V('svi',0)+' ml/m²).');
+
+  var txt=s.join(' ');
+  $('repRaw').value=txt;
+  $('repOut').innerHTML=txt.replace(/\[…\]/g,'<span class="ph">[…]</span>');
+
+  /* conclusioni */
+  var c=[];
+  if(ec&&ec.k!=='norm'&&ec.k!=='iper') c.push('Disfunzione sistolica del ventricolo sinistro, FE '+fe+'%.');
+  if(gp&&gp.cls!=='ok') c.push('Ventricolo sinistro con '+gp.p+'.');
+  if(dd.ok&&dd.grade>0) c.push(dd.txt+'.');
+  if(asv&&asv.lvl>=2) c.push('Stenosi aortica '+severityWord(asv.lvl)+'.');
+  if(arv&&arv.lvl>=2) c.push('Insufficienza aortica '+severityWord(arv.lvl)+'.');
+  if(msv&&msv.lvl>=2) c.push('Stenosi mitralica '+severityWord(msv.lvl)+'.');
+  if(mrv&&mrv.lvl>=2) c.push('Insufficienza mitralica '+severityWord(mrv.lvl)+'.');
+  if(trv&&trv.lvl>=2) c.push('Insufficienza tricuspidalica '+severityWord(trv.lvl)+'.');
+  if(trv2!==null&&trv2>2.8) c.push((trv2<=3.4?'Probabilità intermedia':'Alta probabilità')+' di ipertensione polmonare.');
+  if(!isNorm('aoAsc')) c.push('Dilatazione dell\u2019aorta ascendente ('+V('aoAsc',0)+' mm): definisci il timing del follow-up.');
+  $('repConcl').innerHTML = c.length ? box('box-accent','Sintesi',(('<ul><li>'+c.join('</li><li>')+'</li></ul>'))) : box('box-ok','Sintesi','Esame ecocardiografico nei limiti di norma per tutti i parametri inseriti.');
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   EVENTI E AVVIO
+   ═══════════════════════════════════════════════════════════════════════════ */
+function setTab(id){
+  var t=document.querySelectorAll('.tab'), b=document.querySelectorAll('#nav button');
+  for(var i=0;i<t.length;i++) t[i].className = (t[i].id==='t_'+id)?'tab on':'tab';
+  for(var j=0;j<b.length;j++) b[j].className = (b[j].getAttribute('data-tab')===id)?'on':'';
+  window.scrollTo(0,0);
+}
+function init(){
+  buildUI();
+
+  document.getElementById('nav').addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(b) setTab(b.getAttribute('data-tab'));
+  });
+  var vn=$('vnav');
+  vn.addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    var v=b.getAttribute('data-v'), bs=vn.querySelectorAll('button'), ts=document.querySelectorAll('.sub-tab');
+    for(var i=0;i<bs.length;i++) bs[i].className = (bs[i]===b)?'on':'';
+    for(var j=0;j<ts.length;j++) ts[j].className = (ts[j].id==='v_'+v)?'sub-tab on':'sub-tab';
+  });
+
+  document.getElementById('tabs').addEventListener('input', function(e){
+    var k=e.target.getAttribute&&e.target.getAttribute('data-k');
+    if(!k) return; S[k]=e.target.value;
+    if(k==='prPos'){
+      var opts=modelList(e.target.value), sel=$('f_prMod'), o='';
+      for(var m=0;m<opts.length;m++) o+='<option>'+opts[m]+'</option>';
+      sel.innerHTML=o; S.prMod='—';
+    }
+    refresh();
+  });
+  document.getElementById('tabs').addEventListener('change', function(e){
+    var k=e.target.getAttribute&&e.target.getAttribute('data-k');
+    if(k){ S[k]=e.target.value; refresh(); }
+  });
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var sg=e.target.getAttribute&&e.target.getAttribute('data-seg');
+    if(sg){ var i=parseInt(sg,10); SEG[i]=((SEG[i]||0)+1)%5; refresh(); }
+  });
+
+  ['peso','alt','fc','eta','pas','pad'].forEach(function(id){
+    var el=$(id); if(el) el.addEventListener('input', function(){ S[id]=el.value; refresh(); });
+  });
+  $('sxM').addEventListener('click', function(){ S.sex='M'; $('sxM').className='on'; $('sxF').className=''; refresh(); });
+  $('sxF').addEventListener('click', function(){ S.sex='F'; $('sxF').className='on'; $('sxM').className=''; refresh(); });
+
+  $('copyBtn').addEventListener('click', function(){
+    var ta=$('repRaw'); ta.select(); ta.setSelectionRange(0,999999);
+    var done=false;
+    try { done=document.execCommand('copy'); } catch(err){}
+    if(navigator.clipboard&&!done){ navigator.clipboard.writeText(ta.value); done=true; }
+    var b=$('copyBtn'), old=b.textContent;
+    b.textContent = done?'Referto copiato':'Seleziona e copia manualmente';
+    setTimeout(function(){ b.textContent=old; }, 1800);
+  });
+  $('copyUtic').addEventListener('click', function(){
+    var ta=$('uticRaw'); ta.select(); ta.setSelectionRange(0,999999);
+    var done=false; try { done=document.execCommand('copy'); } catch(err){}
+    if(navigator.clipboard&&!done){ navigator.clipboard.writeText(ta.value); done=true; }
+    var b=$('copyUtic'), old=b.textContent;
+    b.textContent = done?'Sintesi copiata':'Seleziona e copia manualmente';
+    setTimeout(function(){ b.textContent=old; }, 1800);
+  });
+  $('rebuildBtn').addEventListener('click', refresh);
+  $('resetBtn').addEventListener('click', function(){
+    if(!confirm('Azzero tutte le misure di questo esame?')) return;
+    var sex=S.sex; S={sex:sex}; SEG={};
+    var f=document.querySelectorAll('#tabs [data-k]');
+    for(var i=0;i<f.length;i++){ if(f[i].tagName==='SELECT') f[i].selectedIndex=0; else f[i].value=''; }
+    ['peso','alt','fc','eta','pas','pad'].forEach(function(id){ var el=$(id); if(el) el.value=''; });
+    refresh();
+  });
+
+  refresh();
+}
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init); else init();
+
+})();
+</script>
+<script data-iphone="web">
+// Solo da un indirizzo https, cioe' dalla pagina pubblicata: aperto come file
+// il tool non cerca ne' manifest ne' service worker, che accanto al file non
+// ci sono. Un errore qui non deve fermare niente: e' un di piu'.
+(function(){
+if(location.protocol!=="https:") return;
+try{
+  var t=document.getElementsByTagName("head")[0];
+  var m=document.createElement("link"); m.rel="manifest"; m.href="manifest.webmanifest";
+  var i=document.createElement("link"); i.rel="apple-touch-icon"; i.href="icona-180.png";
+  t.appendChild(m); t.appendChild(i);
+  if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js")["catch"](function(){});
+}catch(e){}
+})();
+</script>
+<script data-iphone="fine">document.documentElement.className+=" motore-ok";</script>
+</body>
+</html>
