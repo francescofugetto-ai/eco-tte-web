@@ -88,6 +88,16 @@ document.addEventListener("DOMContentLoaded",function(){
   .nav::-webkit-scrollbar { display:none; }
   .nav button { flex:0 0 auto; font-family:var(--font); font-size:12.5px; font-weight:600; padding:7px 13px; border-radius:99px; border:.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; white-space:nowrap; }
   .nav button.on { background:var(--text-primary); color:#fff; border-color:var(--text-primary); }
+  /* bersagli da dito (07/10/2026): almeno 40 px d'altezza, Apple ne consiglia 44.
+     Prima erano 19 px i campi della testata, 25 i bottoni del sesso, 30 le
+     linguette. Il campo occupa tutta l'altezza della pillola, perche' toccare
+     l'etichetta «Peso» non lo attiva; in cambio la pillola si stringe in
+     orizzontale, cosi' la barra fissa non va a capo su una riga in piu'. */
+  .sexsw button { min-height:40px; padding:0 13px; }
+  .mini { min-height:40px; padding:0 9px 0 11px; }
+  .mini input { height:38px; padding:0; width:44px; }
+  .bsa-chip { display:inline-flex; align-items:center; min-height:40px; padding:0 11px; }
+  .nav button { min-height:40px; padding:0 14px; }
   .navwrap { }
   .tab { display:none; }
   .tab.on { display:block; }
@@ -1649,6 +1659,7 @@ function refresh(){
 
   renderUtic();
   buildReport();
+  fissaSoloLinguette();
 }
 
 /* ── pannello UTIC ──────────────────────────────────────────────────────── */
@@ -1908,6 +1919,19 @@ function setTab(id){
   for(var j=0;j<b.length;j++) b[j].className = (b[j].getAttribute('data-tab')===id)?'on':'';
   window.scrollTo(0,0);
 }
+/* Sugli schermi stretti la testata del paziente scorre via e restano fisse le
+   sole linguette (07/10/2026). Con i bersagli da 40 px la barra intera copriva
+   il 45% di un iPhone SE. Una «top» negativa lascia fuori dallo schermo
+   proprio l'altezza della testata, qualunque sia il numero di righe in cui
+   va a capo; tornando in cima la testata ricompare. Sopra i 360 px resta
+   fissa per intero, come prima. */
+function fissaSoloLinguette(){
+  var sh=document.querySelector('.stickyhead'), tb=document.querySelector('.topbar');
+  if(!sh||!tb) return;
+  sh.style.top = (window.innerWidth<=360) ? (-tb.offsetHeight)+'px' : '';
+}
+window.addEventListener('resize', fissaSoloLinguette);
+
 function init(){
   buildUI();
 
