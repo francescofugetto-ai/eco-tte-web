@@ -182,6 +182,35 @@ document.addEventListener("DOMContentLoaded",function(){
     .grp { padding:.4rem .5rem .6rem; }
   }
   @media print { .stickyhead,.btnrow { display:none; } .tab { display:block !important; } }
+
+  /* matrice Ea × Ees — gemella della scheda d'azione v2 */
+  .vmx-t { font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); margin:14px 0 6px; }
+  .vmx-t span { text-transform:none; letter-spacing:0; font-weight:500; }
+  .vmx { display:grid; grid-template-columns:62px repeat(3,minmax(0,1fr)); gap:4px; margin:0 0 12px; }
+  .vmx-c { border-radius:8px; padding:6px 8px; min-width:0; }
+  .vmx-h { font-size:11px; font-weight:600; color:var(--text-secondary); background:var(--surface-alt); display:flex; flex-direction:column; justify-content:center; }
+  .vmx-h small { font-weight:500; color:var(--text-muted); font-size:10px; }
+  .vmx-hh { background:transparent; }
+  .vmx-v { position:relative; border:1px solid var(--border-strong); border-top:3px solid var(--border-strong); background:var(--surface);
+           display:flex; flex-direction:column; gap:3px; cursor:pointer; padding-right:20px; }
+  .vmx-v.good { border-top-color:var(--accent-green); } .vmx-v.mid { border-top-color:var(--accent-amber-border); }
+  .vmx-v.warn { border-top-color:var(--accent-amber); } .vmx-v.bad { border-top-color:var(--accent-red); }
+  .vmx-p { font-weight:600; font-size:12.5px; line-height:1.3; }
+  .vmx-a { display:none; font-size:11.5px; color:var(--text-secondary); line-height:1.35; }
+  .vmx-qui { display:none; font-size:10px; font-weight:700; color:var(--accent-blue); letter-spacing:.04em; text-transform:uppercase; }
+  .vmx-apri { position:absolute; top:5px; right:6px; font-size:11px; color:var(--text-muted); }
+  .vmx-v.aperta .vmx-a { display:block; } .vmx-v.aperta .vmx-apri { transform:rotate(45deg); }
+  .vmx-v.qui { cursor:default; padding-right:8px; border:2px solid var(--accent-blue); border-top-width:4px; background:var(--accent-blue-bg); }
+  .vmx-v.qui .vmx-a, .vmx-v.qui .vmx-qui { display:block; } .vmx-v.qui .vmx-apri { display:none; }
+  .vmx-v:not(.qui):hover, .vmx-v:not(.qui):focus-visible { border-color:var(--accent-blue); outline:none; }
+  .vmx-brv { display:none; }
+  @media (max-width:640px) {
+    .vmx { grid-template-columns:44px repeat(3,minmax(0,1fr)); gap:3px; }
+    .vmx-c { padding:5px; } .vmx-v { padding-right:16px; } .vmx-h { font-size:9.5px; }
+    .vmx-p { font-size:11px; } .vmx-a { font-size:10.5px; }
+    .vmx-lng { display:none; } .vmx-brv { display:inline; }
+  }
+  @media print { .vmx-v .vmx-a { display:block !important; } .vmx-apri { display:none; } }
 </style>
 <style data-iphone="stile">
 /* L'avviso e' visibile per costruzione: lo nasconde solo la classe che la
@@ -720,13 +749,23 @@ var UT_VAC = reg([
   {k:'ees',  l:'Ees — elastanza telesistolica', u:'mmHg/mL', calc:1, r:{lln:2, lo:[], labs:['ridotta'], txt:'2–3'}},
   {k:'eaees',l:'Ea/Ees', u:'', calc:1, r:{lln:0.5, uln:1.0, hi:[1.36], labs:['zona grigia','disaccoppiato'], loLab:'iper-accoppiato', txt:'0,5–1,0'}}
 ]);
-var VAC_ROWS = [
-  {key:'alta-normale', ea:'alta', ees:'normale', q:'Precarico-dipendenza, pressione elevata, tachicardia', m:'Espansione volemica se responsivo · vasodilatatore · controllo della frequenza'},
-  {key:'alta-bassa', ea:'alta', ees:'bassa', q:'Bassa inotropia con carico elevato e congestione', m:'<strong>Inodilatatore</strong> (dobutamina, levosimendan, milrinone) · vasodilatatore · diuretico · betabloccante solo se la tachicardia è il motore'},
-  {key:'bassa-normale', ea:'bassa', ees:'normale o alta', q:'Pressione bassa da vasoplegia pura', m:'<strong>Vasopressore</strong> — non aggiungere inotropo'},
-  {key:'bassa-bassa', ea:'bassa', ees:'bassa', q:'Bassa inotropia e bassa pressione', m:'<strong>Vasopressore + inotropo</strong> · cerca una componente vasoplegica (sepsi, surrene, farmaci)'},
-  {key:'media-bassa', ea:'intermedia', ees:'bassa', q:'Il fattore limitante è la pompa, non il carico', m:'Inodilatatore · <strong>non</strong> alzare il vasopressore oltre MAP 65–70 mmHg: Ea salirebbe senza che Ees possa seguirla'}
-];
+/* Matrice Ea × Ees: le stesse nove caselle di MAT nella scheda d'azione v2
+   (Progetti/Utic-shock/scheda_azione_shock_v2.html). Categorie come in
+   shock_calc.py: Ea <1,5 bassa · 1,5–2,5 intermedia · >2,5 alta; Ees <2 bassa ·
+   2–3 intermedia · >3 alta. Cinque caselle sono la tabella di Guinot 2022, le
+   altre quattro le opzioni del motore della skill. */
+var VAC_EA = ['alta','intermedia','bassa'], VAC_EES = ['bassa','intermedia','alta'];
+var VAC_MAT = {
+  'alta|bassa': {q:'Pompa debole contro un carico alto', m:'Inodilatatore (dobutamina, levosimendan, milrinone) · vasodilatatore se la pressione lo consente · diuretico · betabloccante solo se la tachicardia è il motore', l:'bad'},
+  'alta|intermedia': {q:'Carico alto con una pompa che regge: precarico-dipendenza, pressione elevata, tachicardia', m:'Volume se responsivo · vasodilatatore · controllo della frequenza', l:'warn'},
+  'alta|alta': {q:'Carico alto, pompa vigorosa', m:'Vasodilatatore · volume se responsivo · frequenza; niente inotropo', l:'warn'},
+  'intermedia|bassa': {q:'Il limite è la pompa, non il carico', m:'Inodilatatore · non alzare il vasopressore oltre MAP 65–70 mmHg: Ea salirebbe senza che Ees possa seguirla · decongestiona se wet', l:'bad'},
+  'intermedia|intermedia': {q:'L’accoppiamento non è il problema dominante', m:'Decidi su quadrante, CPO e lattato: accoppiato non vuol dire adeguato', l:'good'},
+  'intermedia|alta': {q:'Pompa vigorosa con carico nella norma', m:'Non è il coupling il problema; niente inotropo', l:'mid'},
+  'bassa|bassa': {q:'Pompa debole e carico basso', m:'Vasopressore più inotropo · cerca una componente vasoplegica (sepsi, surrene, farmaci)', l:'bad'},
+  'bassa|intermedia': {q:'Pressione bassa da vasoplegia pura', m:'Vasopressore — non aggiungere inotropo', l:'warn'},
+  'bassa|alta': {q:'Vasoplegia con una pompa vigorosa', m:'Vasopressore; niente inotropo', l:'warn'}
+};
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CALCOLI DERIVATI
@@ -1186,25 +1225,36 @@ function vacCalc(pas, pad, sv, fe, pep, tsp, fc){
   if(pas<90) R.avvisi.push('PAS &lt;90 mmHg: il metodo single-beat è meno validato alle pressioni basse — usalo per il trend.');
   if(fc!==null&&fc>130) R.avvisi.push('FC &gt;130 bpm: Ea dipende dalla frequenza, l’affidabilità cala. Controlla prima il ritmo.');
 
-  var eaCat = R.ea<1.5?'bassa':(R.ea>2.5?'alta':'media');
-  var eesCat = R.ees<2.0?'bassa':'normale';
-  if(eaCat==='alta'&&eesCat==='bassa') R.key='alta-bassa';
-  else if(eaCat==='alta') R.key='alta-normale';
-  else if(eaCat==='bassa'&&eesCat==='bassa') R.key='bassa-bassa';
-  else if(eaCat==='bassa') R.key='bassa-normale';
-  else if(eesCat==='bassa') R.key='media-bassa';
+  R.eaCat = R.ea<1.5?'bassa':(R.ea>2.5?'alta':'intermedia');
+  R.eesCat = R.ees<2.0?'bassa':(R.ees>3.0?'alta':'intermedia');
+  R.key = R.eaCat+'|'+R.eesCat;
   return R;
 }
-function vacRow(key){ for(var i=0;i<VAC_ROWS.length;i++) if(VAC_ROWS[i].key===key) return VAC_ROWS[i]; return null; }
+function vacRow(key){ return VAC_MAT[key]||null; }
+/* la casella del paziente si legge intera; le altre dicono il problema e si aprono con un tocco */
 function vacTableHTML(){
-  var h='<div class="tw"><table class="grid" id="tabVac"><caption>Che cosa cambio in base alle due elastanze</caption>'+
-    '<thead><tr><th style="width:12%">Ea</th><th style="width:13%">Ees</th><th style="width:30%">Quadro</th><th>Manovra sulla terapia già impostata</th></tr></thead><tbody>';
-  for(var i=0;i<VAC_ROWS.length;i++){
-    var w=VAC_ROWS[i];
-    h+='<tr data-vac="'+w.key+'"><td class="k">'+w.ea+'</td><td class="k">'+w.ees+'</td><td>'+w.q+'</td><td>'+w.m+'</td></tr>';
+  var EESR={bassa:'&lt;2',intermedia:'2–3',alta:'&gt;3'}, EAR={alta:'&gt;2,5',intermedia:'1,5–2,5',bassa:'&lt;1,5'};
+  var h='<div class="vmx-t">Ea × Ees: il problema e che cosa fare <span>· tocca una casella per leggere la manovra</span></div>'+
+    '<div class="vmx" id="mxVac" role="table" aria-label="Matrice Ea per Ees"><div class="vmx-c vmx-hh"></div>';
+  for(var b=0;b<3;b++) h+='<div class="vmx-c vmx-h" role="columnheader">Ees '+VAC_EES[b]+'<small>'+EESR[VAC_EES[b]]+'</small></div>';
+  for(var a=0;a<3;a++){
+    h+='<div class="vmx-c vmx-h" role="rowheader">Ea <span class="vmx-lng">'+VAC_EA[a]+'</span><span class="vmx-brv">'+VAC_EA[a].slice(0,3)+'.</span><small>'+EAR[VAC_EA[a]]+'</small></div>';
+    for(b=0;b<3;b++){
+      var k=VAC_EA[a]+'|'+VAC_EES[b], w=VAC_MAT[k];
+      h+='<div class="vmx-c vmx-v '+w.l+'" role="cell" tabindex="0" aria-expanded="false" data-vac="'+k+'"><span class="vmx-qui">● il paziente</span>'+
+        '<span class="vmx-p">'+w.q+'</span><span class="vmx-a">→ '+w.m+'</span><span class="vmx-apri" aria-hidden="true">＋</span></div>';
+    }
   }
-  return h+'</tbody></table></div>';
+  return h+'</div>';
 }
+document.addEventListener('click', function(ev){
+  var c=ev.target; while(c&&c!==document&&!(c.classList&&c.classList.contains('vmx-v'))) c=c.parentNode;
+  if(!c||c===document||c.classList.contains('qui')) return;
+  var ap=!c.classList.contains('aperta'); c.classList.toggle('aperta',ap); c.setAttribute('aria-expanded',ap?'true':'false');
+});
+document.addEventListener('keydown', function(ev){
+  if((ev.key==='Enter'||ev.key===' ')&&ev.target.classList&&ev.target.classList.contains('vmx-v')){ ev.preventDefault(); ev.target.click(); }
+});
 
 function shockAssess(){
   var pam=D.pam, ci=D.ciU, cpo=D.cpo, svri=D.svri, rap=D.rapU, pcwp=n('pcwp'),
@@ -1714,9 +1764,8 @@ function renderUtic(){
     if(V0.r!==null){
       vo = box(V0.cls,'Coupling ventricolo-arterioso',
         '<div class="verdict">Ea/Ees '+nff(V0.r,2)+' — '+V0.nota+
-        '<span class="sub">Ea '+nff(V0.ea,2)+' mmHg/mL · Ees '+nff(V0.ees,2)+' mmHg/mL</span>'+sub+'</div>'+
-        (w ? '<ul><li><strong>Quadro:</strong> '+w.q+'</li><li><strong>Manovra:</strong> '+w.m+'</li></ul>'
-           : '<ul><li>Ea intermedia ed Ees normale: nessuna riga della tabella corrisponde.</li></ul>'));
+        '<span class="sub">Ea '+nff(V0.ea,2)+' mmHg/mL, '+V0.eaCat+' · Ees '+nff(V0.ees,2)+' mmHg/mL, '+V0.eesCat+'</span>'+sub+'</div>'+
+        '<ul><li><strong>Il problema:</strong> '+w.q+'</li><li><strong>Che cosa fare:</strong> '+w.m+'</li></ul>');
       if(V0.avvisi.length) vo += box('box-red','Attenzione', V0.avvisi.join(' '));
     } else if(V0.ea!==null){
       vo = box('box-accent','Coupling ventricolo-arterioso',
@@ -1728,8 +1777,13 @@ function renderUtic(){
     }
   }
   $('vacOut').innerHTML=vo;
-  var trs=document.querySelectorAll('#tabVac tbody tr');
-  for(var r=0;r<trs.length;r++) trs[r].className = (V0&&V0.key&&trs[r].getAttribute('data-vac')===V0.key)?'hl':'';
+  var cel=document.querySelectorAll('#mxVac .vmx-v');
+  for(var r=0;r<cel.length;r++){
+    var qui=!!(V0&&V0.r!==null&&cel[r].getAttribute('data-vac')===V0.key);
+    cel[r].classList.toggle('qui',qui);
+    if(qui){ cel[r].setAttribute('aria-current','true'); cel[r].removeAttribute('aria-expanded'); cel[r].removeAttribute('tabindex'); }
+    else { cel[r].removeAttribute('aria-current'); cel[r].setAttribute('tabindex','0'); if(!cel[r].hasAttribute('aria-expanded')) cel[r].setAttribute('aria-expanded','false'); }
+  }
 
   /* testo copiabile */
   var t=[];
@@ -1752,7 +1806,7 @@ function renderUtic(){
     var vt='Coupling ventricolo-arterioso (single-beat, Chen): Ea '+nff(V0.ea,2)+' mmHg/mL';
     if(V0.r!==null) vt+=', Ees '+nff(V0.ees,2)+' mmHg/mL, Ea/Ees '+nff(V0.r,2)+' ('+V0.nota.toLowerCase().replace(/ \((.*)\)$/,', $1')+')';
     vt+='.';
-    if(V0.r!==null&&w) vt+=' Quadro: '+w.q.charAt(0).toLowerCase()+w.q.slice(1)+'; manovra suggerita: '+
+    if(V0.r!==null&&w) vt+=' Problema: '+w.q.charAt(0).toLowerCase()+w.q.slice(1)+'; manovra suggerita: '+
       w.m.replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'.';
     t.push(vt);
   }
