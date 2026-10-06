@@ -124,6 +124,17 @@ document.addEventListener("DOMContentLoaded",function(){
   .verdict { font-size:15px; font-weight:600; line-height:1.4; }
   .verdict .sub { display:block; font-size:12px; font-weight:400; color:var(--text-secondary); margin-top:3px; }
 
+  /* ── tabella del coupling (UTIC) ────────────────────────── */
+  .tw { overflow-x:auto; margin:.7rem 0 1rem; border:.5px solid var(--border-strong); border-radius:var(--radius-lg); background:var(--surface); }
+  table.grid { width:100%; border-collapse:collapse; font-size:12.5px; }
+  table.grid caption { caption-side:top; text-align:left; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); padding:10px 11px 4px; }
+  table.grid th { text-align:left; font-size:10.5px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; color:var(--text-muted); padding:6px 11px; border-bottom:.5px solid var(--border-strong); }
+  table.grid td { padding:8px 11px; border-bottom:.5px solid var(--border); vertical-align:top; line-height:1.5; }
+  table.grid tr:last-child td { border-bottom:none; }
+  table.grid td.k { font-weight:600; }
+  table.grid tr.hl > td { background:var(--accent-amber-bg); }
+  table.grid tr.hl > td:first-child { box-shadow:inset 3px 0 0 var(--accent-amber); }
+
   /* ── sotto-tab valvole ──────────────────────────────────── */
   .subnav { display:flex; gap:5px; flex-wrap:wrap; margin:.6rem 0 .2rem; }
   .subnav button { font-family:var(--font); font-size:12px; font-weight:600; padding:6px 12px; border-radius:var(--radius-sm); border:.5px solid var(--border-strong); background:var(--surface); color:var(--text-secondary); cursor:pointer; }
@@ -291,7 +302,7 @@ function grade(v, sp){
   if(v===null||!sp) return null;
   var L = { t:0, lab:'norma' };
   if(sp.hi){
-    if(sp.lln!==undefined && sp.lln!==null && v < sp.lln) return { t:0.22, lab:'sotto range', low:true };
+    if(sp.lln!==undefined && sp.lln!==null && v < sp.lln) return { t:0.22, lab:sp.loLab||'sotto range', low:true };
     if(sp.uln===null||sp.uln===undefined||v<=sp.uln) return L;
     return bands(v, sp.uln, sp.hi, true, sp.labs);
   }
@@ -689,6 +700,23 @@ var UT_INV = reg([
   {k:'pcwp',  l:'PCWP', u:'mmHg', r:{uln:15, hi:[22], labs:['aumentata','marcatamente aumentata'], txt:'≤ 15'}},
   {k:'coInv', l:'CO da termodiluizione', u:'L/min'}
 ]);
+/* Coupling ventricolo-arterioso — gemello dello step 3 della scheda d'azione
+   dello shock (Progetti/Utic-shock/scheda_azione_shock.html): stesso metodo,
+   stesse soglie, stessa tabella. Se si corregge uno, si guarda l'altro. */
+var UT_VAC = reg([
+  {k:'pep',  l:'PEP', u:'ms', s:'inizio del QRS → inizio del flusso aortico'},
+  {k:'tsp',  l:'TSP', u:'ms', s:'inizio del QRS → fine del flusso aortico'},
+  {k:'ea',   l:'Ea — elastanza arteriosa', u:'mmHg/mL', calc:1, r:{lln:1.5, uln:2.5, hi:[], labs:['aumentata'], txt:'1,5–2,5'}},
+  {k:'ees',  l:'Ees — elastanza telesistolica', u:'mmHg/mL', calc:1, r:{lln:2, lo:[], labs:['ridotta'], txt:'2–3'}},
+  {k:'eaees',l:'Ea/Ees', u:'', calc:1, r:{lln:0.5, uln:1.0, hi:[1.36], labs:['zona grigia','disaccoppiato'], loLab:'iper-accoppiato', txt:'0,5–1,0'}}
+]);
+var VAC_ROWS = [
+  {key:'alta-normale', ea:'alta', ees:'normale', q:'Precarico-dipendenza, pressione elevata, tachicardia', m:'Espansione volemica se responsivo · vasodilatatore · controllo della frequenza'},
+  {key:'alta-bassa', ea:'alta', ees:'bassa', q:'Bassa inotropia con carico elevato e congestione', m:'<strong>Inodilatatore</strong> (dobutamina, levosimendan, milrinone) · vasodilatatore · diuretico · betabloccante solo se la tachicardia è il motore'},
+  {key:'bassa-normale', ea:'bassa', ees:'normale o alta', q:'Pressione bassa da vasoplegia pura', m:'<strong>Vasopressore</strong> — non aggiungere inotropo'},
+  {key:'bassa-bassa', ea:'bassa', ees:'bassa', q:'Bassa inotropia e bassa pressione', m:'<strong>Vasopressore + inotropo</strong> · cerca una componente vasoplegica (sepsi, surrene, farmaci)'},
+  {key:'media-bassa', ea:'intermedia', ees:'bassa', q:'Il fattore limitante è la pompa, non il carico', m:'Inodilatatore · <strong>non</strong> alzare il vasopressore oltre MAP 65–70 mmHg: Ea salirebbe senza che Ees possa seguirla'}
+];
 
 /* ═══════════════════════════════════════════════════════════════════════════
    CALCOLI DERIVATI
@@ -817,6 +845,9 @@ function recalc(){
   D.papsU=papsU; D.papdU=papdU;
   if(n('tapse')!==null&&papsU!==null&&papsU!==0) D.tapsePaps = n('tapse')/papsU;
   if(papsU!==null&&papdU!==null&&rapU!==null&&rapU!==0) D.papi = (papsU-papdU)/rapU;
+  var svV = (D.sv!==undefined&&D.sv!==null)?D.sv:null, efV = (D.efUse!==undefined)?D.efUse:null;
+  D.vac = vacCalc(pas, pad, svV, efV, n('pep'), n('tsp'), num(S.fc));
+  D.ea = D.vac.ea; D.ees = D.vac.ees; D.eaees = D.vac.r;
 
   /* ── WMSI ── */
   var sum=0,cnt=0,touched=false;
@@ -1106,6 +1137,65 @@ function prosthVerdict(){
 /* ═══════════════════════════════════════════════════════════════════════════
    UTIC · pattern di shock, quadrante e stadio SCAI
    ═══════════════════════════════════════════════════════════════════════════ */
+/* ── coupling ventricolo-arterioso, metodo single-beat di Chen (JACC 2001) ──
+   Gemello di calcCoupling() nella scheda d'azione dello shock: la stessa
+   formula, le stesse soglie, gli stessi avvisi. Qui PAS, PA diastolica, FC,
+   gittata dal LVOT e FE si prendono da dove sono gia' stati inseriti.      */
+var CHEN = [0.35695, -7.2266, 74.249, -307.39, 684.54, -856.92, 571.95, -159.1];
+function chenEnd(t){ var s=0; for(var i=0;i<CHEN.length;i++) s+=CHEN[i]*Math.pow(t,i); return s; }
+function vacCalc(pas, pad, sv, fe, pep, tsp, fc){
+  var R={ pas:pas, pad:pad, sv:sv, fe:fe, fc:fc, pes:null, ea:null, ees:null, r:null, tnd:null,
+          cls:'', nota:'', key:null, manca:[], avvisi:[], invalida:false };
+  if(pas===null) R.manca.push('PAS in testata');
+  if(sv===null) R.manca.push('diametro e VTI del LVOT (scheda Emodinamica)');
+  if(R.manca.length) return R;
+  R.pes = 0.9*pas; R.ea = R.pes/sv;
+
+  if(pad===null) R.manca.push('PA diastolica in testata');
+  if(fe===null) R.manca.push('FE (scheda Ventricolo sn)');
+  if(pep===null) R.manca.push('PEP');
+  if(tsp===null) R.manca.push('TSP');
+  if(R.manca.length) return R;
+  if(tsp>0&&fe>0&&fe<=100){
+    R.tnd = pep/tsp;
+    var endEst = 0.0275 - 0.165*(fe/100) + 0.3656*(pad/R.pes) + 0.515*chenEnd(R.tnd);
+    if(endEst>0){
+      R.ees = (pad - endEst*R.pes)/(endEst*sv);
+      if(R.tnd<0.05||R.tnd>0.6) R.avvisi.push('tNd = '+nff(R.tnd,3)+', fuori dall’intervallo abituale 0,05–0,60: ricontrolla PEP e TSP.');
+    }
+  }
+  if(R.ees===null||!(R.ees>0)){ R.ees=null; R.invalida=true; return R; }
+
+  R.r = R.ea/R.ees;
+  if(R.r<0.5){ R.cls='box-warn'; R.nota='iper-accoppiato: carico molto basso, spesso vasoplegia'; }
+  else if(R.r<=1.0){ R.cls='box-ok'; R.nota='accoppiato — non è qui il problema principale'; }
+  else if(R.r<=1.36){ R.cls='box-warn'; R.nota='zona grigia: sorveglia dopo ogni modifica'; }
+  else { R.cls='box-red'; R.nota='DISACCOPPIATO (soglia 1,36)'; }
+
+  if(R.ees<0.8||R.ees>8) R.avvisi.push('Ees fuori dall’intervallo abituale 0,8–8 mmHg/mL: controlla i valori inseriti prima di usarla.');
+  if(pas<90) R.avvisi.push('PAS &lt;90 mmHg: il metodo single-beat è meno validato alle pressioni basse — usalo per il trend.');
+  if(fc!==null&&fc>130) R.avvisi.push('FC &gt;130 bpm: Ea dipende dalla frequenza, l’affidabilità cala. Controlla prima il ritmo.');
+
+  var eaCat = R.ea<1.5?'bassa':(R.ea>2.5?'alta':'media');
+  var eesCat = R.ees<2.0?'bassa':'normale';
+  if(eaCat==='alta'&&eesCat==='bassa') R.key='alta-bassa';
+  else if(eaCat==='alta') R.key='alta-normale';
+  else if(eaCat==='bassa'&&eesCat==='bassa') R.key='bassa-bassa';
+  else if(eaCat==='bassa') R.key='bassa-normale';
+  else if(eesCat==='bassa') R.key='media-bassa';
+  return R;
+}
+function vacRow(key){ for(var i=0;i<VAC_ROWS.length;i++) if(VAC_ROWS[i].key===key) return VAC_ROWS[i]; return null; }
+function vacTableHTML(){
+  var h='<div class="tw"><table class="grid" id="tabVac"><caption>Che cosa cambio in base alle due elastanze</caption>'+
+    '<thead><tr><th style="width:12%">Ea</th><th style="width:13%">Ees</th><th style="width:30%">Quadro</th><th>Manovra sulla terapia già impostata</th></tr></thead><tbody>';
+  for(var i=0;i<VAC_ROWS.length;i++){
+    var w=VAC_ROWS[i];
+    h+='<tr data-vac="'+w.key+'"><td class="k">'+w.ea+'</td><td class="k">'+w.ees+'</td><td>'+w.q+'</td><td>'+w.m+'</td></tr>';
+  }
+  return h+'</tbody></table></div>';
+}
+
 function shockAssess(){
   var pam=D.pam, ci=D.ciU, cpo=D.cpo, svri=D.svri, rap=D.rapU, pcwp=n('pcwp'),
       lact=n('lact'), supp=g('supp'), ipo=g('ipoperf'), svi=D.svi,
@@ -1271,7 +1361,7 @@ var DEC = { mass:0,massi:0,rwt:2,ef:0,efm:0,sf:0,sAvg:1,EDVi:0,ESVi:0,LVIDdi:1,f
   ladAo:2,aoSoVi:1,vciColl:0,rap:0,trGrad:0,paps:0,papd:0,pvr:1,lvotArea:2,sv:0,svi:0,co:1,ci:1,svVol:0,
   EA:2,eAvg:1,EeSep:1,EeLat:1,EeAvg:1,pvSD:2,ava:2,avai:2,dvi:2,arERO:0,arRV:0,msMVApht:2,mrERO:0,mrRV:0,
   trERO:0,trRV:0,tvAnni:1,prEOAref:2,paEOA:2,paiEOA:2,paDVI:2,paATET:2,pmEOA:2,pmiEOA:2,pmDVI:2,
-  pam:0,cpo:2,cpi:2,ciU:1,svr:0,svri:0,tapsePaps:2,papi:2,rvlv:2 };
+  pam:0,cpo:2,cpi:2,ciU:1,svr:0,svri:0,tapsePaps:2,papi:2,rvlv:2,pep:0,tsp:0,ea:2,ees:2,eaees:2 };
 function dec(k){ return DEC[k]!==undefined?DEC[k]:1; }
 
 var TABS = [
@@ -1348,6 +1438,25 @@ function buildUI(){
     groupHTML('Cuore destro', UT_RIGHT, 'TAPSE/PAPs <0,31 mm/mmHg indica disaccoppiamento ventricolo destro–arteria polmonare. PAPi = (PAPs − PAPd) / PAD: <0,9 identifica il rischio di insufficienza destra.')+
     groupHTML('Dati invasivi, se disponibili', UT_INV, 'Compilali solo se hai catetere venoso centrale, Swan-Ganz o termodiluizione: sovrascrivono le stime ecocardiografiche.')+
     '<div id="uticOut"></div>'+
+    '<div class="subsection-label">Coupling ventricolo-arterioso</div>'+
+    box('box-accent','A che serve adesso','Impostata la terapia sul quadrante, il coupling dice se stai spingendo la leva giusta: '+
+      '<strong>Ea</strong> è il carico che il ventricolo ha davanti, <strong>Ees</strong> è quanto riesce a spingere. '+
+      'Se il rapporto è alto perché <em>Ea è alta</em> → scarica. Se è alto perché <em>Ees è bassa</em> → sostieni la pompa. '+
+      'Non è la stessa terapia.')+
+    '<div class="hint">Metodo single-beat di Chen (lo stesso di iElastance). PAS e PA diastolica vengono dalla testata, la gittata da diametro e VTI del LVOT (scheda Emodinamica), la FE dalla scheda Ventricolo sn: qui si aggiungono solo PEP e TSP.</div>'+
+    groupHTML('Elastanze', UT_VAC,
+      '<strong>PEP</strong> = dall’inizio del QRS all’inizio del flusso aortico · <strong>TSP</strong> = dall’inizio del QRS alla fine del flusso aortico, sullo stesso tracciato Doppler con ECG a 100 mm/s. '+
+      '<strong>LVOT</strong> in parasternale asse lungo, zoom, mesosistole, 3–5 mm sotto l’anulus: entra al quadrato, 1 mm di errore su 20 vale circa il 10% sulla gittata. '+
+      '<strong>VTI</strong> in apicale 5 camere, stesso punto del diametro, angolo &lt;20°; in fibrillazione media 5–10 cicli.')+
+    '<div id="vacOut"></div>'+
+    vacTableHTML()+
+    box('box-accent','Il test che conta','Ogni volta che modifichi il vasopressore, <strong>rimisura il VTI</strong>. Se alzi la noradrenalina e il VTI scende, '+
+      'hai comprato un numero sul monitor pagandolo con il flusso: torna indietro. Se lo riduci e il VTI sale con la MAP che '+
+      'tiene, il paziente era sovra-vasocostretto.')+
+    box('box-warn','Limiti','Ea/Ees misura <strong>efficienza, non adeguatezza</strong>: un cuore che spinge poco contro un carico basso può '+
+      'risultare accoppiato ed essere comunque in shock — leggilo con CI, lattato e ScvO₂. Il metodo è meno affidabile con '+
+      '<strong>PAS &lt;90 mmHg</strong> e con <strong>FC &gt;130 bpm</strong>. I diversi metodi single-beat non sono '+
+      'intercambiabili: per confrontare due momenti usa sempre lo stesso.')+
     '<div class="btnrow"><button class="btn" id="copyUtic">Copia la sintesi emodinamica</button></div>'+
     '<textarea id="uticRaw" style="position:absolute;left:-9999px;top:0"></textarea>'+
   '</div>';
@@ -1577,6 +1686,37 @@ function renderUtic(){
   }
   $('uticOut').innerHTML=out;
 
+  /* coupling ventricolo-arterioso */
+  var V0=D.vac, vo='', w=V0?vacRow(V0.key):null;
+  if(V0){
+    var dati=[];
+    if(V0.pas!==null) dati.push('PA '+nff(V0.pas,0)+(V0.pad!==null?'/'+nff(V0.pad,0):'')+' mmHg');
+    if(V0.pes!==null) dati.push('Pes '+nff(V0.pes,0)+' mmHg');
+    if(V0.sv!==null) dati.push('gittata '+nff(V0.sv,1)+' mL dal LVOT');
+    if(V0.fe!==null) dati.push('FE '+nff(V0.fe,0)+'%');
+    if(V0.fc!==null) dati.push('FC '+nff(V0.fc,0)+' bpm');
+    if(V0.tnd!==null) dati.push('tNd '+nff(V0.tnd,3));
+    var sub = dati.length?'<span class="sub">In uso: '+dati.join(' · ')+'</span>':'';
+    if(V0.r!==null){
+      vo = box(V0.cls,'Coupling ventricolo-arterioso',
+        '<div class="verdict">Ea/Ees '+nff(V0.r,2)+' — '+V0.nota+
+        '<span class="sub">Ea '+nff(V0.ea,2)+' mmHg/mL · Ees '+nff(V0.ees,2)+' mmHg/mL</span>'+sub+'</div>'+
+        (w ? '<ul><li><strong>Quadro:</strong> '+w.q+'</li><li><strong>Manovra:</strong> '+w.m+'</li></ul>'
+           : '<ul><li>Ea intermedia ed Ees normale: nessuna riga della tabella corrisponde.</li></ul>'));
+      if(V0.avvisi.length) vo += box('box-red','Attenzione', V0.avvisi.join(' '));
+    } else if(V0.ea!==null){
+      vo = box('box-accent','Coupling ventricolo-arterioso',
+        '<div class="verdict">Ea '+nff(V0.ea,2)+' mmHg/mL'+sub+'</div>'+
+        (V0.invalida ? 'Ees non calcolabile con questi valori: ricontrolla PEP, TSP, FE e PA diastolica.'
+                     : 'Per Ees servono ancora: '+V0.manca.join(', ')+'.'));
+    } else {
+      vo = box('box-accent','Coupling ventricolo-arterioso','Servono: '+V0.manca.join(', ')+'.');
+    }
+  }
+  $('vacOut').innerHTML=vo;
+  var trs=document.querySelectorAll('#tabVac tbody tr');
+  for(var r=0;r<trs.length;r++) trs[r].className = (V0&&V0.key&&trs[r].getAttribute('data-vac')===V0.key)?'hl':'';
+
   /* testo copiabile */
   var t=[];
   t.push('Valutazione emodinamica ecocardiografica.');
@@ -1593,6 +1733,14 @@ function renderUtic(){
   if(A.has){
     t.push('Quadro compatibile con: '+A.pattern.charAt(0).toLowerCase()+A.pattern.slice(1)+
       (A.pattern.indexOf(A.quad)<0?' (profilo '+A.quad+')':'')+', stadio SCAI '+A.scai+'.');
+  }
+  if(V0&&V0.ea!==null){
+    var vt='Coupling ventricolo-arterioso (single-beat, Chen): Ea '+nff(V0.ea,2)+' mmHg/mL';
+    if(V0.r!==null) vt+=', Ees '+nff(V0.ees,2)+' mmHg/mL, Ea/Ees '+nff(V0.r,2)+' ('+V0.nota.toLowerCase().replace(/ \((.*)\)$/,', $1')+')';
+    vt+='.';
+    if(V0.r!==null&&w) vt+=' Quadro: '+w.q.charAt(0).toLowerCase()+w.q.slice(1)+'; manovra suggerita: '+
+      w.m.replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>')+'.';
+    t.push(vt);
   }
   $('uticRaw').value=t.join(' ');
 }
