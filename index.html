@@ -183,7 +183,7 @@ document.addEventListener("DOMContentLoaded",function(){
   }
   @media print { .stickyhead,.btnrow { display:none; } .tab { display:block !important; } }
 
-  /* matrice Ea × Ees — gemella della scheda d'azione v2 */
+  /* matrice Ea × Ees — gemella della scheda d'azione dello shock */
   .vmx-t { font-size:11px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--text-muted); margin:14px 0 6px; }
   .vmx-t span { text-transform:none; letter-spacing:0; font-weight:500; }
   .vmx { display:grid; grid-template-columns:62px repeat(3,minmax(0,1fr)); gap:4px; margin:0 0 12px; }
@@ -749,8 +749,8 @@ var UT_VAC = reg([
   {k:'ees',  l:'Ees — elastanza telesistolica', u:'mmHg/mL', calc:1, r:{lln:2, lo:[], labs:['ridotta'], txt:'2–3'}},
   {k:'eaees',l:'Ea/Ees', u:'', calc:1, r:{lln:0.5, uln:1.0, hi:[1.36], labs:['zona grigia','disaccoppiato'], loLab:'iper-accoppiato', txt:'0,5–1,0'}}
 ]);
-/* Matrice Ea × Ees: le stesse nove caselle di MAT nella scheda d'azione v2
-   (Progetti/Utic-shock/scheda_azione_shock_v2.html). Categorie come in
+/* Matrice Ea × Ees: le stesse nove caselle di MAT nella scheda d'azione
+   (Progetti/Utic-shock/scheda_azione_shock.html). Categorie come in
    shock_calc.py: Ea <1,5 bassa · 1,5–2,5 intermedia · >2,5 alta; Ees <2 bassa ·
    2–3 intermedia · >3 alta. Cinque caselle sono la tabella di Guinot 2022, le
    altre quattro le opzioni del motore della skill. */
